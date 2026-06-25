@@ -34,10 +34,19 @@ export default function AdminContentPage() {
   const saveEdit = async (id: string) => {
     const price = parseFloat(editVal)
     if (isNaN(price) || price <= 0) return
+    const { data: { user: admin } } = await supabase.auth.getUser()
     await supabase
       .from('prices')
       .update({ price_kwd: price, in_stock: editStock, updated_at: new Date().toISOString() })
       .eq('id', id)
+    if (admin) {
+      await supabase.from('audit_log').insert({
+        admin_id: admin.id,
+        action: 'update_price',
+        target_table: 'prices',
+        target_id: id,
+      })
+    }
     setPrices((prev) =>
       prev.map((p) => p.id === id ? { ...p, price_kwd: price, in_stock: editStock } : p)
     )

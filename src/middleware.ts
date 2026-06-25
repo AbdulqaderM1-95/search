@@ -21,7 +21,22 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Sign out disabled users — they can still hold a valid JWT but must not access the app
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('disabled')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.disabled) {
+      await supabase.auth.signOut()
+      return NextResponse.redirect(new URL('/auth/login?reason=disabled', request.url))
+    }
+  }
+
   return response
 }
 

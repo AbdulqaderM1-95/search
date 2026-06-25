@@ -30,10 +30,17 @@ export default function AdminUsersPage() {
   }
 
   const toggleDisabled = async (user: Profile) => {
-    await supabase
-      .from('profiles')
-      .update({ disabled: !user.disabled })
-      .eq('id', user.id)
+    const { data: { user: admin } } = await supabase.auth.getUser()
+    const action = user.disabled ? 'reactivate_user' : 'disable_user'
+    await supabase.from('profiles').update({ disabled: !user.disabled }).eq('id', user.id)
+    if (admin) {
+      await supabase.from('audit_log').insert({
+        admin_id: admin.id,
+        action,
+        target_table: 'profiles',
+        target_id: user.id,
+      })
+    }
     setUsers((prev) =>
       prev.map((u) => u.id === user.id ? { ...u, disabled: !u.disabled } : u)
     )
