@@ -13,6 +13,8 @@ export default function AdminContentPage() {
   const [editing, setEditing] = useState<string | null>(null)
   const [editVal, setEditVal] = useState('')
   const [editStock, setEditStock] = useState(true)
+  const [editOriginal, setEditOriginal] = useState('')
+  const [editDiscountEnds, setEditDiscountEnds] = useState('')
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -29,15 +31,27 @@ export default function AdminContentPage() {
     setEditing(p.id)
     setEditVal(String(p.price_kwd))
     setEditStock(p.in_stock)
+    setEditOriginal(p.original_price != null ? String(p.original_price) : '')
+    setEditDiscountEnds(
+      p.discount_ends_at ? new Date(p.discount_ends_at).toISOString().slice(0, 16) : ''
+    )
   }
 
   const saveEdit = async (id: string) => {
     const price = parseFloat(editVal)
     if (isNaN(price) || price <= 0) return
+    const originalPrice = editOriginal ? parseFloat(editOriginal) : null
+    if (originalPrice !== null && isNaN(originalPrice)) return
     const { data: { user: admin } } = await supabase.auth.getUser()
     await supabase
       .from('prices')
-      .update({ price_kwd: price, in_stock: editStock, updated_at: new Date().toISOString() })
+      .update({
+        price_kwd: price,
+        in_stock: editStock,
+        original_price: originalPrice,
+        discount_ends_at: editDiscountEnds ? new Date(editDiscountEnds).toISOString() : null,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
     if (admin) {
       await supabase.from('audit_log').insert({
@@ -48,7 +62,10 @@ export default function AdminContentPage() {
       })
     }
     setPrices((prev) =>
-      prev.map((p) => p.id === id ? { ...p, price_kwd: price, in_stock: editStock } : p)
+      prev.map((p) => p.id === id
+        ? { ...p, price_kwd: price, in_stock: editStock, original_price: originalPrice, discount_ends_at: editDiscountEnds ? new Date(editDiscountEnds).toISOString() : null }
+        : p
+      )
     )
     setEditing(null)
   }
@@ -92,6 +109,8 @@ export default function AdminContentPage() {
                 <th className="px-4 py-3 text-left">Model</th>
                 <th className="px-4 py-3 text-left">Storage</th>
                 <th className="px-4 py-3 text-left">Price (KWD)</th>
+                <th className="px-4 py-3 text-left">Orig. Price</th>
+                <th className="px-4 py-3 text-left">Discount ends</th>
                 <th className="px-4 py-3 text-left">In stock</th>
                 <th className="px-4 py-3 text-left">Updated</th>
                 <th className="px-4 py-3 text-left"></th>
@@ -117,6 +136,40 @@ export default function AdminContentPage() {
                       <span className="font-semibold">{Number(p.price_kwd).toFixed(3)}</span>
                     )}
                   </td>
+                  {/* Original price */}
+                  <td className="px-4 py-3">
+                    {editing === p.id ? (
+                      <input
+                        type="number"
+                        value={editOriginal}
+                        onChange={(e) => setEditOriginal(e.target.value)}
+                        placeholder="—"
+                        step="0.001"
+                        min="0"
+                        className="w-24 px-2 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:border-blue-400"
+                      />
+                    ) : (
+                      <span className="text-gray-500 text-sm">
+                        {p.original_price != null ? Number(p.original_price).toFixed(3) : '—'}
+                      </span>
+                    )}
+                  </td>
+                  {/* Discount ends */}
+                  <td className="px-4 py-3">
+                    {editing === p.id ? (
+                      <input
+                        type="datetime-local"
+                        value={editDiscountEnds}
+                        onChange={(e) => setEditDiscountEnds(e.target.value)}
+                        className="px-2 py-1 rounded border border-gray-300 text-xs focus:outline-none focus:border-blue-400"
+                      />
+                    ) : (
+                      <span className="text-gray-500 text-xs">
+                        {p.discount_ends_at ? new Date(p.discount_ends_at).toLocaleDateString() : '—'}
+                      </span>
+                    )}
+                  </td>
+                  {/* In stock */}
                   <td className="px-4 py-3">
                     {editing === p.id ? (
                       <input
@@ -145,7 +198,7 @@ export default function AdminContentPage() {
                 </tr>
               ))}
               {prices.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
+                <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
               )}
             </tbody>
           </table>

@@ -25,6 +25,8 @@ export type Price = {
   storage_option: string
   price_kwd: number
   in_stock: boolean
+  original_price: number | null
+  discount_ends_at: string | null
   updated_at: string
   shops?: Shop
 }
@@ -54,9 +56,14 @@ export type SavedAlert = {
 export type UserProfile = {
   id: string
   email: string
-  role: 'user' | 'admin'
+  role: 'user' | 'admin' | 'shop_owner'
   created_at: string
   disabled: boolean
+}
+
+export type ShopProfile = {
+  user_id: string
+  shop_id: string
 }
 
 export type AuditLog = {

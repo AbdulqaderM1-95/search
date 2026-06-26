@@ -123,10 +123,32 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
               <div className="text-right">
                 {price.in_stock ? (
                   <>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {Number(price.price_kwd).toFixed(3)}
-                    </p>
-                    <p className="text-xs text-gray-500">KWD</p>
+                    {(() => {
+                      const hasDiscount =
+                        price.original_price != null &&
+                        price.original_price > price.price_kwd
+                      const discountPct = hasDiscount
+                        ? Math.round((1 - price.price_kwd / price.original_price!) * 100)
+                        : 0
+                      return (
+                        <>
+                          {hasDiscount && (
+                            <div className="flex items-center justify-end gap-1.5 mb-0.5">
+                              <span className="text-xs font-bold bg-red-600 text-white px-1.5 py-0.5 rounded-md">
+                                -{discountPct}%
+                              </span>
+                              <span className="text-sm line-through text-gray-400">
+                                {Number(price.original_price).toFixed(3)}
+                              </span>
+                            </div>
+                          )}
+                          <p className={`text-2xl font-bold ${hasDiscount ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                            {Number(price.price_kwd).toFixed(3)}
+                          </p>
+                          <p className="text-xs text-gray-500">KWD</p>
+                        </>
+                      )
+                    })()}
                   </>
                 ) : (
                   <span className="text-sm text-gray-400 font-medium">Not available</span>

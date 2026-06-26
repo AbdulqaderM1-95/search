@@ -8,7 +8,7 @@ import type { User } from '@supabase/supabase-js'
 export default function Header() {
   const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [role, setRole] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
@@ -16,13 +16,13 @@ export default function Header() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!user) { setIsAdmin(false); return }
+    if (!user) { setRole(null); return }
     supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
-      .then(({ data }) => setIsAdmin(data?.role === 'admin'))
+      .then(({ data }) => setRole(data?.role ?? 'user'))
   }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const signOut = async () => {
@@ -45,7 +45,12 @@ export default function Header() {
               <Link href="/watchlist" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                 Watchlist
               </Link>
-              {isAdmin && (
+              {role === 'shop_owner' && (
+                <Link href="/shop/dashboard" className="text-amber-600 hover:text-amber-700 font-medium">
+                  My Shop
+                </Link>
+              )}
+              {role === 'admin' && (
                 <Link href="/admin" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   Admin
                 </Link>

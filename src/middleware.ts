@@ -36,15 +36,22 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth/login?reason=disabled', request.url))
     }
 
-    // Server-side admin gate — never rely on client-side check alone
+    // Server-side admin gate
     if (request.nextUrl.pathname.startsWith('/admin')) {
       if (profile?.role !== 'admin') {
         return NextResponse.redirect(new URL('/', request.url))
       }
     }
+
+    // Server-side shop owner gate — admins can also access /shop
+    if (request.nextUrl.pathname.startsWith('/shop')) {
+      if (profile?.role !== 'shop_owner' && profile?.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    }
   } else {
-    // Unauthenticated users cannot access admin or watchlist
-    const protectedPaths = ['/admin', '/watchlist']
+    // Unauthenticated users cannot access admin, watchlist, or shop portal
+    const protectedPaths = ['/admin', '/watchlist', '/shop']
     if (protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))) {
       return NextResponse.redirect(new URL('/auth/login', request.url))
     }
