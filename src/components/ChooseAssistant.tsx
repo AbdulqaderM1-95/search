@@ -1,6 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+const LOADING_STEPS = [
+  { icon: '🔍', text: 'Checking live Kuwait prices…' },
+  { icon: '🏪', text: 'Comparing shops & stock…' },
+  { icon: '💡', text: 'Matching to your needs…' },
+  { icon: '✨', text: 'Almost there…' },
+]
 
 type Step = 'budget' | 'use' | 'storage' | 'result'
 
@@ -33,8 +40,24 @@ export default function ChooseAssistant() {
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadingStep, setLoadingStep] = useState(0)
+  const stepTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => () => stopStepAnimation(), [])
+
+  const startStepAnimation = () => {
+    setLoadingStep(0)
+    stepTimer.current = setInterval(() => {
+      setLoadingStep((prev) => Math.min(prev + 1, LOADING_STEPS.length - 1))
+    }, 1800)
+  }
+
+  const stopStepAnimation = () => {
+    if (stepTimer.current) { clearInterval(stepTimer.current); stepTimer.current = null }
+  }
 
   const reset = () => {
+    stopStepAnimation()
     setStep('budget')
     setBudget(null)
     setUseCase(null)
@@ -42,6 +65,7 @@ export default function ChooseAssistant() {
     setResult('')
     setError(null)
     setLoading(false)
+    setLoadingStep(0)
   }
 
   const close = () => { setOpen(false); reset() }
@@ -51,6 +75,7 @@ export default function ChooseAssistant() {
     setLoading(true)
     setError(null)
     setResult('')
+    startStepAnimation()
 
     try {
       const res = await fetch('/api/ai-choose', {
@@ -61,6 +86,7 @@ export default function ChooseAssistant() {
 
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => ({}))
+        stopStepAnimation()
         setError(data.error ?? 'Something went wrong. Please try again.')
         setLoading(false)
         return
@@ -68,6 +94,7 @@ export default function ChooseAssistant() {
 
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
+      stopStepAnimation()
       setLoading(false)
 
       while (true) {
@@ -86,6 +113,7 @@ export default function ChooseAssistant() {
         }
       }
     } catch {
+      stopStepAnimation()
       setError('Connection error. Please try again.')
       setLoading(false)
     }
@@ -208,10 +236,27 @@ export default function ChooseAssistant() {
             {step === 'result' && (
               <div>
                 {loading && (
-                  <div className="space-y-3 py-2">
-                    <p className="text-sm text-gray-500 animate-pulse">Checking live Kuwait prices…</p>
-                    {[90, 70, 80, 55].map((w, i) => (
-                      <div key={i} className="h-3 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" style={{ width: `${w}%` }} />
+                  <div className="py-4 space-y-3">
+                    {LOADING_STEPS.map((s, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-center gap-3 transition-all duration-500 ${
+                          i <= loadingStep ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+                        }`}
+                      >
+                        <span className="text-lg">{s.icon}</span>
+                        <span className={`text-sm ${i === loadingStep ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-400'}`}>
+                          {s.text}
+                        </span>
+                        {i < loadingStep && (
+                          <svg className="w-4 h-4 text-emerald-500 ml-auto shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                        )}
+                        {i === loadingStep && (
+                          <div className="ml-auto w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin shrink-0" />
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
