@@ -23,17 +23,30 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Sign out disabled users — they can still hold a valid JWT but must not access the app
+  // Enforce disabled users can't access the app
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('disabled')
+      .select('role, disabled')
       .eq('id', user.id)
       .single()
 
     if (profile?.disabled) {
       await supabase.auth.signOut()
       return NextResponse.redirect(new URL('/auth/login?reason=disabled', request.url))
+    }
+
+    // Server-side admin gate — never rely on client-side check alone
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      if (profile?.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+    }
+  } else {
+    // Unauthenticated users cannot access admin or watchlist
+    const protectedPaths = ['/admin', '/watchlist']
+    if (protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))) {
+      return NextResponse.redirect(new URL('/auth/login', request.url))
     }
   }
 

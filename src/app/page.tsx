@@ -163,7 +163,6 @@ export default function HomePage() {
             <AIRecommendation
               model={selectedModel}
               storage={selectedStorage}
-              prices={prices}
               onDismiss={() => setAiDismissed(true)}
             />
           </div>

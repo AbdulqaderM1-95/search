@@ -1,18 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { IphoneModel, Price, Shop } from '@/lib/types'
-
-type PriceWithShop = Price & { shops: Shop }
+import type { IphoneModel } from '@/lib/types'
 
 type Props = {
   model: IphoneModel
   storage: string
-  prices: PriceWithShop[]
   onDismiss: () => void
 }
 
-export default function AIRecommendation({ model, storage, prices, onDismiss }: Props) {
+export default function AIRecommendation({ model, storage, onDismiss }: Props) {
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -29,13 +26,6 @@ export default function AIRecommendation({ model, storage, prices, onDismiss }: 
       body: JSON.stringify({
         modelName: model.model_name,
         storage,
-        prices: prices.map((p) => ({
-          shop: p.shops.name,
-          price: Number(p.price_kwd),
-          inStock: p.in_stock,
-          area: p.shops.area,
-          isAuthorised: p.shops.is_authorised_reseller,
-        })),
       }),
     })
       .then(async (res) => {
