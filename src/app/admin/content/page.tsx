@@ -15,6 +15,8 @@ export default function AdminContentPage() {
   const [editStock, setEditStock] = useState(true)
   const [editOriginal, setEditOriginal] = useState('')
   const [editDiscountEnds, setEditDiscountEnds] = useState('')
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -42,8 +44,10 @@ export default function AdminContentPage() {
     if (isNaN(price) || price <= 0) return
     const originalPrice = editOriginal ? parseFloat(editOriginal) : null
     if (originalPrice !== null && isNaN(originalPrice)) return
+    setSaveError(null)
+    setSaving(true)
     const { data: { user: admin } } = await supabase.auth.getUser()
-    await supabase
+    const { error } = await supabase
       .from('prices')
       .update({
         price_kwd: price,
@@ -53,6 +57,11 @@ export default function AdminContentPage() {
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
+    setSaving(false)
+    if (error) {
+      setSaveError(error.message)
+      return
+    }
     if (admin) {
       await supabase.from('audit_log').insert({
         admin_id: admin.id,
@@ -187,9 +196,18 @@ export default function AdminContentPage() {
                   <td className="px-4 py-3 text-xs text-gray-400">{new Date(p.updated_at).toLocaleString()}</td>
                   <td className="px-4 py-3">
                     {editing === p.id ? (
-                      <div className="flex gap-2">
-                        <button onClick={() => saveEdit(p.id)} className="text-xs text-emerald-600 font-medium hover:underline">Save</button>
-                        <button onClick={() => setEditing(null)} className="text-xs text-gray-400 hover:underline">Cancel</button>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => saveEdit(p.id)}
+                            disabled={saving}
+                            className="text-xs text-emerald-600 font-medium hover:underline disabled:opacity-40"
+                          >
+                            {saving ? 'Saving…' : 'Save'}
+                          </button>
+                          <button onClick={() => { setEditing(null); setSaveError(null) }} className="text-xs text-gray-400 hover:underline">Cancel</button>
+                        </div>
+                        {saveError && <p className="text-xs text-red-600 max-w-[200px]">{saveError}</p>}
                       </div>
                     ) : (
                       <button onClick={() => startEdit(p)} className="text-xs text-blue-600 hover:underline">Edit</button>
