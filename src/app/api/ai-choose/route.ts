@@ -23,10 +23,14 @@ const ALLOWED_USE_CASES = ['photos', 'social', 'work', 'gaming']
 const ALLOWED_STORAGE_NEEDS = ['light', 'moderate', 'heavy']
 const ALLOWED_BUDGETS = [150, 200, 250, 9999]
 
+const err = (msg: string, status = 500) =>
+  new Response(JSON.stringify({ error: msg }), { status, headers: { 'Content-Type': 'application/json' } })
+
 export async function POST(req: NextRequest) {
+  try {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
   if (!checkRateLimit(ip)) {
-    return new Response(JSON.stringify({ error: 'Too many requests — try again in a minute' }), { status: 429 })
+    return err('Too many requests — try again in a minute', 429)
   }
 
   let body: { maxBudget: number; useCase: string; storageNeed: string }
@@ -52,14 +56,19 @@ export async function POST(req: NextRequest) {
     { cookies: { getAll: () => req.cookies.getAll(), setAll: () => {} } }
   )
 
-  const { data: prices } = await supabase
+  const { data: prices, error: dbError } = await supabase
     .from('prices')
     .select('price_kwd, storage_option, shops(name, is_authorised_reseller), iphone_models(model_name)')
     .eq('in_stock', true)
     .order('price_kwd', { ascending: true })
 
+  if (dbError) {
+    console.error('[ai-choose] db error', dbError)
+    return err('Database error: ' + dbError.message, 500)
+  }
+
   if (!prices || prices.length === 0) {
-    return new Response(JSON.stringify({ error: 'No prices available' }), { status: 404 })
+    return err('No in-stock prices found — make sure some prices are marked as in stock in the admin panel.', 404)
   }
 
   type PriceEntry = {
@@ -142,7 +151,9 @@ Be specific and direct. Under 120 words total. If nothing fits the budget, say s
   })
 
   if (!res.ok) {
-    return new Response(JSON.stringify({ error: 'AI unavailable' }), { status: 502 })
+    const body = await res.text().catch(() => '')
+    console.error('[ai-choose] OpenRouter error', res.status, body)
+    return err(`AI unavailable (${res.status})`, 502)
   }
 
   return new Response(res.body, {
@@ -152,4 +163,8 @@ Be specific and direct. Under 120 words total. If nothing fits the budget, say s
       'Connection': 'keep-alive',
     },
   })
+  } catch (e) {
+    console.error('[ai-choose] unhandled error', e)
+    return err(e instanceof Error ? e.message : 'Server error')
+  }
 }
