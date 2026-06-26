@@ -1,8 +1,38 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import type { Shop } from '@/lib/types'
+
+function ShopAvatar({ shop, selected }: { shop: Shop; selected: boolean }) {
+  const [imgError, setImgError] = useState(false)
+  const SHOP_COLORS: Record<string, string> = {
+    X: 'bg-blue-600', B: 'bg-purple-600', E: 'bg-green-600',
+  }
+  const initial = shop.name[0].toUpperCase()
+  const colorClass = SHOP_COLORS[initial] ?? 'bg-red-600'
+
+  if (shop.logo_url && !imgError) {
+    return (
+      <Image
+        src={shop.logo_url}
+        alt={shop.name}
+        width={28}
+        height={28}
+        className="w-7 h-7 rounded-lg object-contain bg-white border border-gray-100 flex-shrink-0"
+        onError={() => setImgError(true)}
+      />
+    )
+  }
+  return (
+    <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+      selected ? 'bg-white/20 text-white' : `${colorClass} text-white`
+    }`}>
+      {initial}
+    </span>
+  )
+}
 
 type SortOrder = 'asc' | 'desc'
 
@@ -58,13 +88,6 @@ export default function Sidebar({
     onSelectShop(id)
     if (window.innerWidth < 768) onMobileClose()
   }
-
-  const initial = (name: string) => name[0].toUpperCase()
-
-  const SHOP_COLORS: Record<string, string> = {
-    X: 'bg-blue-600', B: 'bg-purple-600', E: 'bg-green-600',
-  }
-  const shopColor = (name: string) => SHOP_COLORS[initial(name)] ?? 'bg-red-600'
 
   const activeShops = shops // future: filter by category
 
@@ -163,9 +186,7 @@ export default function Sidebar({
                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                           }`}
                         >
-                          <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${shopColor(shop.name)}`}>
-                            {initial(shop.name)}
-                          </span>
+                          <ShopAvatar shop={shop} selected={selectedShopId === shop.id} />
                           <span className="font-medium truncate">{shop.name}</span>
                           {shop.is_authorised_reseller && (
                             <span className="ml-auto text-xs shrink-0" title="Authorised reseller">✓</span>
