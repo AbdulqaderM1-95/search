@@ -11,7 +11,7 @@ export type ModelSpec = {
 
 export const MODEL_SPECS: Record<string, ModelSpec> = {
   'iPhone 17': {
-    display: '6.1" Super Retina XDR OLED, 2556×1179, 460 ppi, 60 Hz',
+    display: '6.3" Super Retina XDR OLED, 2556×1179, 460 ppi, 60 Hz',
     chip: 'Apple A19, 6-core CPU, 6-core GPU, 16-core Neural Engine',
     camera: '48 MP main (f/1.6) + 12 MP ultrawide — 4K Cinematic, Smart HDR 6',
     frontCamera: '12 MP TrueDepth, f/1.9, 4K video',

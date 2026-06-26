@@ -53,7 +53,7 @@ export default function AIRecommendation({ model, storage, onDismiss }: Props) {
       </div>
 
       <p className="mt-3 text-xs text-gray-400">
-        Source: Apple — verify at{' '}
+        Specs are approximate — always verify at{' '}
         <a
           href="https://www.apple.com/kw/shop/buy-iphone"
           target="_blank"
