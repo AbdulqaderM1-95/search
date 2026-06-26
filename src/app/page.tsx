@@ -7,6 +7,7 @@ import ModelSelector from '@/components/ModelSelector'
 import StorageSelector from '@/components/StorageSelector'
 import ShopCard from '@/components/ShopCard'
 import Header from '@/components/Header'
+import ChooseAssistant from '@/components/ChooseAssistant'
 
 type PriceWithShop = Price & { shops: Shop }
 
@@ -109,6 +110,8 @@ export default function HomePage() {
           )}
         </div>
       </main>
+
+      <ChooseAssistant />
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-gray-900 text-white text-sm px-4 py-2 shadow-lg z-50 animate-bounce">
