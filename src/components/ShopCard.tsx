@@ -146,6 +146,11 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
                             {Number(price.price_kwd).toFixed(3)}
                           </p>
                           <p className="text-xs text-gray-500">KWD</p>
+                          {hasDiscount && price.discount_ends_at && (
+                            <p className="text-xs text-red-500 mt-0.5">
+                              Sale ends {new Date(price.discount_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                            </p>
+                          )}
                         </>
                       )
                     })()}
