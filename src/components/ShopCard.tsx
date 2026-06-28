@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import type { Price, Shop } from '@/lib/types'
 import ShopDetailSheet from './ShopDetailSheet'
+import { useLang } from '@/lib/lang-context'
 
 type Props = {
   price: Price
@@ -33,7 +34,7 @@ function ShopLogo({ shop }: { shop: Shop }) {
         alt={shop.name}
         width={48}
         height={48}
-        className="rounded-xl object-contain bg-white border border-gray-100"
+        className="w-12 h-12 rounded-xl object-contain bg-white border border-gray-100 flex-shrink-0"
         onError={() => setImgError(true)}
       />
     )
@@ -47,6 +48,7 @@ function ShopLogo({ shop }: { shop: Shop }) {
 
 export default function ShopCard({ price, shop, modelId, storage, dimmed }: Props) {
   const supabase = createClient()
+  const { t } = useLang()
   const [detailOpen, setDetailOpen] = useState(false)
   const [watched, setWatched] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
@@ -103,24 +105,32 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
     <>
       <div
         onClick={() => setDetailOpen(true)}
-        className={`relative rounded-2xl border bg-white dark:bg-gray-900 p-4 cursor-pointer transition-all hover:shadow-md active:scale-[0.99] ${
+        className={`group relative rounded-2xl border bg-white dark:bg-gray-900 p-4 cursor-pointer transition-all duration-200 ${
           dimmed
             ? 'opacity-50 border-gray-100 dark:border-gray-800'
-            : 'border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-900'
+            : 'border-gray-200 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-800 hover:shadow-[0_4px_24px_rgba(37,99,235,0.09)] active:scale-[0.99]'
         }`}
       >
         <div className="flex items-start gap-3">
           <ShopLogo shop={shop} />
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white text-sm">{shop.name}</p>
+            <div className="flex items-start justify-between gap-2">
+              {/* Left: shop name + badge */}
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-900 dark:text-white text-sm leading-tight">{shop.name}</p>
                 {shop.is_authorised_reseller && (
-                  <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">Authorised reseller</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {t.authorisedReseller}
+                  </span>
                 )}
               </div>
-              <div className="text-right">
+
+              {/* Right: price block */}
+              <div className="text-right flex-shrink-0">
                 {price.in_stock ? (
                   <>
                     {(() => {
@@ -134,21 +144,21 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
                         <>
                           {hasDiscount && (
                             <div className="flex items-center justify-end gap-1.5 mb-0.5">
-                              <span className="text-xs font-bold bg-red-600 text-white px-1.5 py-0.5 rounded-md">
+                              <span className="text-xs font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">
                                 -{discountPct}%
                               </span>
-                              <span className="text-sm line-through text-gray-400">
+                              <span className="text-xs line-through text-gray-400">
                                 {Number(price.original_price).toFixed(3)}
                               </span>
                             </div>
                           )}
-                          <p className={`text-2xl font-bold ${hasDiscount ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                          <p className={`text-2xl font-bold tabular-nums leading-none ${hasDiscount ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
                             {Number(price.price_kwd).toFixed(3)}
                           </p>
-                          <p className="text-xs text-gray-500">KWD</p>
+                          <p className="text-xs text-gray-400 font-medium mt-0.5">KWD</p>
                           {hasDiscount && price.discount_ends_at && (
                             <p className="text-xs text-red-500 mt-0.5">
-                              Sale ends {new Date(price.discount_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                              {t.saleEnds} {new Date(price.discount_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                             </p>
                           )}
                         </>
@@ -156,21 +166,22 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
                     })()}
                   </>
                 ) : (
-                  <span className="text-sm text-gray-400 font-medium">Not available</span>
+                  <span className="text-sm text-gray-400 font-medium">{t.notAvailable}</span>
                 )}
               </div>
             </div>
 
+            {/* Stock status + meta */}
             <div className="mt-2 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
               {price.in_stock ? (
                 <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  In stock
+                  {t.inStock}
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-gray-400 font-medium">
                   <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
-                  Out of stock
+                  {t.outOfStock}
                 </span>
               )}
               {shop.area && <span>{shop.area}</span>}
@@ -179,16 +190,17 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
           </div>
         </div>
 
-        <div className="mt-3 flex items-center gap-2">
+        {/* Action row */}
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2">
           {shop.reach_url && (
             <a
               href={shop.reach_url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 text-center text-xs font-medium py-1.5 px-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="flex-1 text-center text-xs font-semibold py-2 px-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 dark:hover:bg-blue-950 dark:hover:text-blue-300 transition-colors"
             >
-              Visit shop
+              {t.visitShop}
             </a>
           )}
           {shop.instagram_url && (
@@ -197,7 +209,7 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="p-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-pink-50 hover:border-pink-200 dark:hover:bg-pink-950/30 transition-colors"
               title={shop.instagram_handle ?? 'Instagram'}
             >
               <svg className="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
@@ -209,10 +221,10 @@ export default function ShopCard({ price, shop, modelId, storage, dimmed }: Prop
             <button
               onClick={toggleWatch}
               title={watched ? 'Remove alert' : 'Set price alert'}
-              className={`p-1.5 rounded-lg border transition-colors ${
+              className={`p-2 rounded-xl border transition-colors ${
                 watched
                   ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-blue-600'
-                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 hover:text-blue-500'
+                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 hover:text-blue-500 hover:border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-950/30'
               }`}
             >
               <svg className="w-4 h-4" fill={watched ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">

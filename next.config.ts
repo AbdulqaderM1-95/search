@@ -10,8 +10,8 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      // unsafe-inline required by Next.js hydration; unsafe-eval removed
-      "script-src 'self' 'unsafe-inline'",
+      // unsafe-inline required by Next.js hydration; unsafe-eval required by Supabase JS client
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https://*.supabase.co",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai",

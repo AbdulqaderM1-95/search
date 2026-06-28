@@ -13,10 +13,10 @@ export default function StorageSelector({ options, selected, onSelect }: Props) 
         <button
           key={opt}
           onClick={() => onSelect(opt)}
-          className={`flex-shrink-0 px-3 py-1 rounded-lg text-sm border transition-colors ${
+          className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm border transition-colors ${
             selected === opt
-              ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white'
-              : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-400'
+              ? 'bg-blue-50 dark:bg-blue-950 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-300 font-medium'
+              : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
           }`}
         >
           {opt}

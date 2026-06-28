@@ -25,10 +25,10 @@ export default function ModelSelector({ models, selected, onSelect }: Props) {
         <button
           key={m.id}
           onClick={() => onSelect(m)}
-          className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+          className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-medium border transition-colors ${
             selected?.id === m.id
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-400'
+              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+              : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
           }`}
         >
           {m.model_name}

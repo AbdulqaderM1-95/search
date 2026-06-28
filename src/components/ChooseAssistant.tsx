@@ -1,37 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-
-const LOADING_STEPS = [
-  { icon: '🔍', text: 'Checking live Kuwait prices…' },
-  { icon: '🏪', text: 'Comparing shops & stock…' },
-  { icon: '💡', text: 'Matching to your needs…' },
-  { icon: '✨', text: 'Almost there…' },
-]
+import { useLang } from '@/lib/lang-context'
 
 type Step = 'budget' | 'use' | 'storage' | 'result'
 
-const BUDGETS = [
-  { label: 'Under 150 KWD', value: 150 },
-  { label: '150 – 200 KWD', value: 200 },
-  { label: '200 – 250 KWD', value: 250 },
-  { label: 'No limit', value: 9999 },
-]
-
-const USE_CASES = [
-  { label: 'Photos & Camera', icon: '📷', value: 'photos' },
-  { label: 'Social & Video', icon: '📱', value: 'social' },
-  { label: 'Work & Productivity', icon: '💼', value: 'work' },
-  { label: 'Gaming', icon: '🎮', value: 'gaming' },
-]
-
-const STORAGE_NEEDS = [
-  { label: 'Light', sub: 'I use cloud and stream everything', value: 'light' },
-  { label: 'Moderate', sub: 'Some photos, offline apps', value: 'moderate' },
-  { label: 'Heavy', sub: 'Lots of videos and photos', value: 'heavy' },
-]
-
 export default function ChooseAssistant() {
+  const { t } = useLang()
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>('budget')
   const [budget, setBudget] = useState<number | null>(null)
@@ -48,7 +23,7 @@ export default function ChooseAssistant() {
   const startStepAnimation = () => {
     setLoadingStep(0)
     stepTimer.current = setInterval(() => {
-      setLoadingStep((prev) => Math.min(prev + 1, LOADING_STEPS.length - 1))
+      setLoadingStep((prev) => Math.min(prev + 1, 3))
     }, 1800)
   }
 
@@ -124,12 +99,13 @@ export default function ChooseAssistant() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-4 z-40 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-sm font-semibold px-4 py-3 rounded-full shadow-lg transition-all"
+        className="fixed bottom-6 right-5 z-40 flex items-center gap-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-sm font-semibold px-5 py-3.5 rounded-full shadow-[0_4px_20px_rgba(37,99,235,0.4)] hover:shadow-[0_6px_24px_rgba(37,99,235,0.5)] transition-all duration-200"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+        {/* Sparkle/wand icon */}
+        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
         </svg>
-        Help me choose
+        {t.helpMeChoose}
       </button>
 
       {/* Backdrop */}
@@ -143,23 +119,26 @@ export default function ChooseAssistant() {
       {/* Sheet */}
       {open && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
-          <div className="max-w-lg mx-auto px-5 pb-8 pt-4">
+          <div className="max-w-lg mx-auto px-6 pb-10 pt-4">
 
             {/* Handle */}
-            <div className="w-10 h-1 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-5" />
+            <div className="w-10 h-1 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-6" />
 
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-start justify-between mb-5">
               <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Help me choose</h2>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {step === 'budget' && 'Step 1 of 3 — Budget'}
-                  {step === 'use' && 'Step 2 of 3 — Main use'}
-                  {step === 'storage' && 'Step 3 of 3 — Storage'}
-                  {step === 'result' && 'Your personalised pick'}
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t.helpMeChoose}</h2>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                  {step === 'budget' && t.step1Label}
+                  {step === 'use' && t.step2Label}
+                  {step === 'storage' && t.step3Label}
+                  {step === 'result' && t.resultLabel}
                 </p>
               </div>
-              <button onClick={close} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1">
+              <button
+                onClick={close}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -170,7 +149,7 @@ export default function ChooseAssistant() {
             {step !== 'result' && (
               <div className="h-1 w-full bg-gray-100 dark:bg-gray-800 rounded-full mb-6 overflow-hidden">
                 <div
-                  className="h-full bg-blue-600 rounded-full transition-all duration-300"
+                  className="h-full bg-blue-600 rounded-full transition-all duration-500"
                   style={{ width: step === 'budget' ? '33%' : step === 'use' ? '66%' : '100%' }}
                 />
               </div>
@@ -178,13 +157,18 @@ export default function ChooseAssistant() {
 
             {/* Step 1 — Budget */}
             {step === 'budget' && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">What is your budget?</p>
-                {BUDGETS.map((b) => (
+              <div className="space-y-2.5">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4">{t.whatBudget}</p>
+                {[
+                  { label: t.budgetUnder150, value: 150 },
+                  { label: t.budget150to200, value: 200 },
+                  { label: t.budget200to250, value: 250 },
+                  { label: t.budgetNoLimit, value: 9999 },
+                ].map((b) => (
                   <button
                     key={b.value}
                     onClick={() => { setBudget(b.value); setStep('use') }}
-                    className="w-full text-left px-4 py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors text-sm font-medium text-gray-800 dark:text-gray-200"
+                    className="w-full text-left px-4 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:border-blue-600 transition-all text-sm font-medium text-gray-800 dark:text-gray-200 active:scale-[0.98]"
                   >
                     {b.label}
                   </button>
@@ -194,40 +178,61 @@ export default function ChooseAssistant() {
 
             {/* Step 2 — Use case */}
             {step === 'use' && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">What do you mainly use your phone for?</p>
-                {USE_CASES.map((u) => (
+              <div className="space-y-2.5">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4">{t.whatUse}</p>
+                {[
+                  { label: t.usePhotos, icon: '📷', value: 'photos' },
+                  { label: t.useSocial, icon: '📱', value: 'social' },
+                  { label: t.useWork, icon: '💼', value: 'work' },
+                  { label: t.useGaming, icon: '🎮', value: 'gaming' },
+                ].map((u) => (
                   <button
                     key={u.value}
                     onClick={() => { setUseCase(u.value); setStep('storage') }}
-                    className="w-full text-left px-4 py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors flex items-center gap-3"
+                    className="w-full text-left px-4 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:border-blue-600 transition-all flex items-center gap-3.5 active:scale-[0.98]"
                   >
-                    <span className="text-xl">{u.icon}</span>
+                    <span className="text-2xl">{u.icon}</span>
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{u.label}</span>
                   </button>
                 ))}
-                <button onClick={() => setStep('budget')} className="text-xs text-gray-400 hover:text-gray-600 mt-1 pt-1">
-                  ← Back
+                <button
+                  onClick={() => setStep('budget')}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 mt-2 pt-1 transition-colors"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                  </svg>
+                  {t.back}
                 </button>
               </div>
             )}
 
             {/* Step 3 — Storage */}
             {step === 'storage' && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">How much do you store on your phone?</p>
-                {STORAGE_NEEDS.map((s) => (
+              <div className="space-y-2.5">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4">{t.howMuchStorage}</p>
+                {[
+                  { label: t.storageLight, sub: t.storageLightSub, value: 'light' },
+                  { label: t.storageModerate, sub: t.storageModerateSub, value: 'moderate' },
+                  { label: t.storageHeavy, sub: t.storageHeavySub, value: 'heavy' },
+                ].map((s) => (
                   <button
                     key={s.value}
                     onClick={() => { setStorageNeed(s.value); submit(s.value) }}
-                    className="w-full text-left px-4 py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
+                    className="w-full text-left px-4 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:border-blue-600 transition-all active:scale-[0.98]"
                   >
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{s.label}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{s.sub}</p>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{s.label}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">{s.sub}</p>
                   </button>
                 ))}
-                <button onClick={() => setStep('use')} className="text-xs text-gray-400 hover:text-gray-600 mt-1 pt-1">
-                  ← Back
+                <button
+                  onClick={() => setStep('use')}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 mt-2 pt-1 transition-colors"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                  </svg>
+                  {t.back}
                 </button>
               </div>
             )}
@@ -236,16 +241,21 @@ export default function ChooseAssistant() {
             {step === 'result' && (
               <div>
                 {loading && (
-                  <div className="py-4 space-y-3">
-                    {LOADING_STEPS.map((s, i) => (
+                  <div className="py-4 space-y-4">
+                    {[
+                      { icon: '🔍', text: t.loadingPrices },
+                      { icon: '🏪', text: t.loadingShops },
+                      { icon: '💡', text: t.loadingMatching },
+                      { icon: '✨', text: t.loadingAlmost },
+                    ].map((s, i) => (
                       <div
                         key={i}
                         className={`flex items-center gap-3 transition-all duration-500 ${
                           i <= loadingStep ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
                         }`}
                       >
-                        <span className="text-lg">{s.icon}</span>
-                        <span className={`text-sm ${i === loadingStep ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-400'}`}>
+                        <span className="text-xl flex-shrink-0">{s.icon}</span>
+                        <span className={`text-sm leading-snug ${i === loadingStep ? 'text-gray-900 dark:text-white font-semibold' : 'text-gray-400 dark:text-gray-500'}`}>
                           {s.text}
                         </span>
                         {i < loadingStep && (
@@ -262,27 +272,29 @@ export default function ChooseAssistant() {
                 )}
 
                 {error && (
-                  <div className="text-sm text-red-600 py-2">{error}</div>
+                  <div className="text-sm text-red-600 dark:text-red-400 py-3 px-4 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900">
+                    {error}
+                  </div>
                 )}
 
                 {!loading && !error && result && (
-                  <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                  <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-7">
                     {result}
                   </div>
                 )}
 
-                <div className="mt-6 flex gap-3">
+                <div className="mt-8 flex gap-3">
                   <button
                     onClick={reset}
-                    className="flex-1 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="flex-1 py-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
-                    Start over
+                    {t.startOver}
                   </button>
                   <button
                     onClick={close}
-                    className="flex-1 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                    className="flex-1 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors shadow-sm"
                   >
-                    Browse prices
+                    {t.browsePrices}
                   </button>
                 </div>
               </div>
