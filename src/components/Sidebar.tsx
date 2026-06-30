@@ -253,7 +253,7 @@ export default function Sidebar({
                             }`}>
                               {seriesNum}
                             </span>
-                            <span className="font-medium">{series}</span>
+                            <span className="font-medium">{series.replace(/\s+\d+$/, '')}</span>
                           </span>
                           <span className="flex items-center gap-1.5">
                             <span className="text-xs text-gray-400 dark:text-gray-500">{seriesModels.length}</span>
@@ -266,11 +266,13 @@ export default function Sidebar({
                           <div className="ml-2 pl-3 border-l-2 border-gray-100 dark:border-gray-800 py-0.5 space-y-0.5">
                             {seriesModels.map((m) => {
                               const isSelected = selectedModel?.id === m.id
-                              const variant = m.model_name.includes('Pro Max') ? 'Pro Max'
-                                : m.model_name.includes('Pro') ? 'Pro'
-                                : 'Standard'
+                              const variant = m.model_name.includes('Pro Max') ? `${seriesNum} Pro Max`
+                                : m.model_name.includes('Pro') ? `${seriesNum} Pro`
+                                : m.model_name.includes('Air') ? `${seriesNum} Air`
+                                : `iPhone ${seriesNum}`
                               const badge = m.model_name.includes('Pro Max') ? 'Max'
                                 : m.model_name.includes('Pro') ? 'Pro'
+                                : m.model_name.includes('Air') ? 'Air'
                                 : seriesNum
                               return (
                                 <button
