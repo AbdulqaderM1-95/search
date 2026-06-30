@@ -149,8 +149,10 @@ export default function HomePage() {
 
   useEffect(() => { loadPrices() }, [loadPrices])
 
+  const visibleModels = models.filter(m => !m.model_name.includes('Air'))
+
   const q = searchQuery.trim().toLowerCase()
-  const filteredModels = q ? models.filter(m => m.model_name.toLowerCase().includes(q)) : models
+  const filteredModels = q ? visibleModels.filter(m => m.model_name.toLowerCase().includes(q)) : visibleModels
   const filteredShops = q ? shops.filter(s => s.name.toLowerCase().includes(q)) : shops
 
   let displayed = [...prices]
@@ -482,11 +484,11 @@ export default function HomePage() {
                 </div>
 
                 {/* Quick picks — latest models */}
-                {models.length > 0 && (
+                {visibleModels.length > 0 && (
                   <div>
                     <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">{t.quickPicks}</h2>
                     <div className="space-y-2">
-                      {models.slice(0, 4).map(m => (
+                      {visibleModels.slice(0, 4).map(m => (
                         <button
                           key={m.id}
                           onClick={() => { setSelectedModel(m); setActiveView('products'); if (!m.storage_options.includes(selectedStorage)) setSelectedStorage(m.storage_options[0] ?? '256 GB') }}
@@ -511,8 +513,8 @@ export default function HomePage() {
                   <div>
                     <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">{t.bestDeals}</h2>
                     <div className="space-y-2">
-                      {bestDeals.map(p => {
-                        const model = models.find(m => m.id === p.model_id)
+                      {bestDeals.filter(p => visibleModels.some(m => m.id === p.model_id)).map(p => {
+                        const model = visibleModels.find(m => m.id === p.model_id)
                         return (
                           <button
                             key={p.id}
