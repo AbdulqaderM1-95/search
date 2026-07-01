@@ -24,10 +24,16 @@ export default function AdminContentPage() {
     const { data } = await supabase
       .from('prices')
       .select('*, shops(*), iphone_models(*)')
-      .order('name', { referencedTable: 'shops', ascending: true })
-      .order('model_name', { referencedTable: 'iphone_models', ascending: true })
-      .order('storage_option', { ascending: true })
-    setPrices((data as PriceRow[]) ?? [])
+    const sorted = ((data as PriceRow[]) ?? []).sort((a, b) => {
+      const shopA = a.shops?.name ?? ''
+      const shopB = b.shops?.name ?? ''
+      if (shopA !== shopB) return shopA.localeCompare(shopB)
+      const modelA = a.iphone_models?.model_name ?? ''
+      const modelB = b.iphone_models?.model_name ?? ''
+      if (modelA !== modelB) return modelA.localeCompare(modelB)
+      return (a.storage_option ?? '').localeCompare(b.storage_option ?? '')
+    })
+    setPrices(sorted)
     setLoading(false)
   }
 
