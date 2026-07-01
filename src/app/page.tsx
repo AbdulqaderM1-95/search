@@ -438,7 +438,7 @@ export default function HomePage() {
                   ) : (
                     <>
                       {inStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} storage={selectedStorage} />
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} />
                       ))}
                       {!filterInStock && outOfStock.map(p => (
                         <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} storage={selectedStorage} dimmed />
