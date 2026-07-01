@@ -24,7 +24,9 @@ export default function AdminContentPage() {
     const { data } = await supabase
       .from('prices')
       .select('*, shops(*), iphone_models(*)')
-      .order('updated_at', { ascending: false })
+      .order('name', { referencedTable: 'shops', ascending: true })
+      .order('model_name', { referencedTable: 'iphone_models', ascending: true })
+      .order('storage_option', { ascending: true })
     setPrices((data as PriceRow[]) ?? [])
     setLoading(false)
   }
@@ -114,7 +116,7 @@ export default function AdminContentPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 text-xs uppercase tracking-wide">
               <tr>
-                <th className="px-4 py-3 text-left">Shop</th>
+                <th className="px-4 py-3 text-left text-gray-300 dark:text-gray-600">—</th>
                 <th className="px-4 py-3 text-left">Model</th>
                 <th className="px-4 py-3 text-left">Storage</th>
                 <th className="px-4 py-3 text-left">Price (KWD)</th>
@@ -126,9 +128,19 @@ export default function AdminContentPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
-              {prices.map((p) => (
-                <tr key={p.id}>
-                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{p.shops?.name}</td>
+              {prices.map((p, i) => {
+                const isNewShop = i === 0 || prices[i - 1].shops?.name !== p.shops?.name
+                return (
+                <>
+                  {isNewShop && (
+                    <tr key={`shop-header-${p.shops?.name}`}>
+                      <td colSpan={9} className="px-4 py-2 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest border-t-2 border-gray-200 dark:border-gray-700">
+                        {p.shops?.name}
+                      </td>
+                    </tr>
+                  )}
+                  <tr key={p.id}>
+                  <td className="px-4 py-3 font-medium text-gray-400 dark:text-gray-500 text-xs">—</td>
                   <td className="px-4 py-3 text-gray-500 text-xs">{p.iphone_models?.model_name}</td>
                   <td className="px-4 py-3 text-gray-500">{p.storage_option}</td>
                   <td className="px-4 py-3">
@@ -214,7 +226,9 @@ export default function AdminContentPage() {
                     )}
                   </td>
                 </tr>
-              ))}
+                </>
+                )
+              })}
               {prices.length === 0 && (
                 <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
               )}
