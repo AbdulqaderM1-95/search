@@ -165,8 +165,10 @@ export default function HomePage() {
 
   const selectedShop = shops.find(s => s.id === selectedShopId) ?? null
 
+  const isHome = !selectedModel && activeView === 'products'
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <div className={`min-h-screen flex flex-col ${isHome ? 'bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900' : 'bg-gray-50 dark:bg-gray-950'}`}>
 
       <Header
         onMenuClick={() => setMobileMenuOpen(true)}
@@ -190,6 +192,7 @@ export default function HomePage() {
           setActiveView('products')
         }}
         hideSearch={!selectedModel && activeView === 'products'}
+        transparent={!selectedModel && activeView === 'products'}
       />
 
       <div className="flex flex-1">
@@ -445,7 +448,7 @@ export default function HomePage() {
               </>
             ) : (
               /* ── Landing page — full-bleed hero ── */
-              <div className="relative flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+              <div className="relative flex-1 flex flex-col overflow-hidden">
 
                 {/* SVG phone illustrations scattered in background */}
                 <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

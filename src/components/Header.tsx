@@ -15,9 +15,10 @@ type Props = {
   onSearchSubmit?: () => void
   onClearSearch?: () => void
   hideSearch?: boolean
+  transparent?: boolean
 }
 
-export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onSearchChange = () => {}, onSearchSubmit = () => {}, onClearSearch, hideSearch = false }: Props) {
+export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onSearchChange = () => {}, onSearchSubmit = () => {}, onClearSearch, hideSearch = false, transparent = false }: Props) {
   const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<string | null>(null)
@@ -44,7 +45,7 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-[0_2px_16px_rgba(15,23,42,0.5)]">
+    <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent shadow-none' : 'bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-[0_2px_16px_rgba(15,23,42,0.5)]'}`}>
       <div className="px-3 sm:px-6 h-14 sm:h-16 flex items-center gap-2 sm:gap-3">
 
         {/* Hamburger (mobile) */}
@@ -82,6 +83,9 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
           </button>
         )}
 
+        {/* Spacer — pushes right items to the corner when search is hidden */}
+        {hideSearch && <div className="flex-1" />}
+
         {/* Search bar */}
         <div className={`max-w-lg mx-auto ${hideSearch ? 'hidden' : 'flex-1'}`}>
           <div className="relative">
@@ -118,7 +122,7 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
           {/* Language toggle — hidden on mobile */}
           <button
             onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-            className="hidden sm:block text-white/90 hover:text-white text-sm font-semibold px-2.5 py-1 rounded-lg hover:bg-white/10 transition-colors whitespace-nowrap border border-white/20"
+            className="text-white/90 hover:text-white text-sm font-semibold px-2.5 py-1 rounded-lg hover:bg-white/10 transition-colors whitespace-nowrap border border-white/20"
           >
             {lang === 'en' ? 'العربية' : 'English'}
           </button>
