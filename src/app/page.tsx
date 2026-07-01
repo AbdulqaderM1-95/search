@@ -441,7 +441,7 @@ export default function HomePage() {
                         <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} />
                       ))}
                       {!filterInStock && outOfStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} storage={selectedStorage} dimmed />
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} dimmed />
                       ))}
                     </>
                   )}
@@ -533,7 +533,7 @@ export default function HomePage() {
                       <input
                         type="text"
                         value={searchQuery}
-                        onChange={(e) => { setSearchQuery(e.target.value); if (!e.target.value.trim() && activeView === 'search') setActiveView('products') }}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && searchQuery.trim() && setActiveView('search')}
                         placeholder={t.searchPlaceholder}
                         className="w-full py-4 pl-12 pr-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 text-base outline-none focus:ring-2 focus:ring-white/30 shadow-2xl"

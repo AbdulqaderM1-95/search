@@ -6,17 +6,60 @@ import type { Price, Shop, IphoneModel } from '@/lib/types'
 
 type PriceRow = Price & { shops: Shop; iphone_models: IphoneModel }
 
+// Inline number cell — looks like text, edits on click, saves on blur/Enter
+function NumCell({
+  value, required = false, onSave,
+}: { value: number | null; required?: boolean; onSave: (v: number | null) => void }) {
+  const [draft, setDraft] = useState(value != null ? String(value) : '')
+
+  const commit = () => {
+    if (draft.trim() === '') {
+      if (required) { setDraft(value != null ? String(value) : ''); return }
+      onSave(null); return
+    }
+    const n = parseFloat(draft)
+    if (isNaN(n) || n < 0) { setDraft(value != null ? String(value) : ''); return }
+    onSave(n)
+  }
+
+  return (
+    <input
+      type="number"
+      value={draft}
+      step="0.001"
+      min="0"
+      placeholder="—"
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+      className="w-24 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:ring-1 focus:ring-blue-400 rounded px-1.5 py-0.5 outline-none text-sm cursor-pointer focus:cursor-text transition-colors"
+    />
+  )
+}
+
+// Inline datetime cell
+function DateCell({ value, onSave }: { value: string | null; onSave: (v: string | null) => void }) {
+  const [draft, setDraft] = useState(value ? new Date(value).toISOString().slice(0, 16) : '')
+
+  const commit = () => onSave(draft ? new Date(draft).toISOString() : null)
+
+  return (
+    <input
+      type="datetime-local"
+      value={draft}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+      className="w-40 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-white dark:focus:bg-gray-800 focus:ring-1 focus:ring-blue-400 rounded px-1.5 py-0.5 outline-none text-xs cursor-pointer focus:cursor-text transition-colors"
+    />
+  )
+}
+
 export default function AdminContentPage() {
   const supabase = createClient()
   const [prices, setPrices] = useState<PriceRow[]>([])
   const [loading, setLoading] = useState(true)
-  const [editing, setEditing] = useState<string | null>(null)
-  const [editVal, setEditVal] = useState('')
-  const [editStock, setEditStock] = useState(true)
-  const [editOriginal, setEditOriginal] = useState('')
-  const [editDiscountEnds, setEditDiscountEnds] = useState('')
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
+  const [savingId, setSavingId] = useState<string | null>(null)
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -37,40 +80,14 @@ export default function AdminContentPage() {
     setLoading(false)
   }
 
-  const startEdit = (p: PriceRow) => {
-    setEditing(p.id)
-    setEditVal(String(p.price_kwd))
-    setEditStock(p.in_stock)
-    setEditOriginal(p.original_price != null ? String(p.original_price) : '')
-    setEditDiscountEnds(
-      p.discount_ends_at ? new Date(p.discount_ends_at).toISOString().slice(0, 16) : ''
-    )
-  }
-
-  const saveEdit = async (id: string) => {
-    const price = parseFloat(editVal)
-    if (isNaN(price) || price <= 0) return
-    const originalPrice = editOriginal ? parseFloat(editOriginal) : null
-    if (originalPrice !== null && isNaN(originalPrice)) return
-    setSaveError(null)
-    setSaving(true)
+  const saveField = async (id: string, fields: Partial<Price>) => {
+    setSavingId(id)
     const { data: { user: admin } } = await supabase.auth.getUser()
-    const { error } = await supabase
+    await supabase
       .from('prices')
-      .update({
-        price_kwd: price,
-        in_stock: editStock,
-        original_price: originalPrice,
-        discount_ends_at: editDiscountEnds ? new Date(editDiscountEnds).toISOString() : null,
-        updated_at: new Date().toISOString(),
-      })
+      .update({ ...fields, updated_at: new Date().toISOString() })
       .eq('id', id)
-    setSaving(false)
-    if (error) {
-      setSaveError(error.message)
-      return
-    }
-    if (admin) {
+    if (admin && 'price_kwd' in fields) {
       await supabase.from('audit_log').insert({
         admin_id: admin.id,
         action: 'update_price',
@@ -78,13 +95,8 @@ export default function AdminContentPage() {
         target_id: id,
       })
     }
-    setPrices((prev) =>
-      prev.map((p) => p.id === id
-        ? { ...p, price_kwd: price, in_stock: editStock, original_price: originalPrice, discount_ends_at: editDiscountEnds ? new Date(editDiscountEnds).toISOString() : null }
-        : p
-      )
-    )
-    setEditing(null)
+    setPrices(prev => prev.map(p => p.id === id ? { ...p, ...fields } : p))
+    setSavingId(null)
   }
 
   const addPrice = async () => {
@@ -96,7 +108,7 @@ export default function AdminContentPage() {
       model_id: models[0].id,
       storage_option: '256 GB',
       price_kwd: 0,
-      in_stock: true,
+      in_stock: false,
     })
     load()
   }
@@ -115,7 +127,7 @@ export default function AdminContentPage() {
 
       {loading ? (
         <div className="space-y-2">
-          {[1,2,3,4].map((i) => <div key={i} className="h-12 rounded-xl bg-gray-200 dark:bg-gray-800 animate-pulse" />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-12 rounded-xl bg-gray-200 dark:bg-gray-800 animate-pulse" />)}
         </div>
       ) : (
         <div className="rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
@@ -128,7 +140,6 @@ export default function AdminContentPage() {
                 <th className="px-4 py-3 text-left">Orig. Price</th>
                 <th className="px-4 py-3 text-left">Discount ends</th>
                 <th className="px-4 py-3 text-left">In stock</th>
-                <th className="px-4 py-3 text-left"></th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-900">
@@ -138,63 +149,51 @@ export default function AdminContentPage() {
                   <React.Fragment key={p.id}>
                     {isNewShop && (
                       <tr>
-                        <td colSpan={7} className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest border-t-2 border-b border-gray-200 dark:border-gray-700">
+                        <td colSpan={6} className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest border-t-2 border-b border-gray-200 dark:border-gray-700">
                           {p.shops?.name}
+                          {savingId === p.id && <span className="ml-2 text-blue-400 font-normal normal-case tracking-normal">saving…</span>}
                         </td>
                       </tr>
                     )}
-                    <tr className="border-t border-gray-100 dark:border-gray-800">
-                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{p.iphone_models?.model_name}</td>
-                      <td className="px-4 py-3 text-gray-500">{p.storage_option}</td>
-                      <td className="px-4 py-3">
-                        {editing === p.id ? (
-                          <input type="number" value={editVal} onChange={(e) => setEditVal(e.target.value)} step="0.001" min="0" className="w-24 px-2 py-1 rounded border border-blue-400 text-sm focus:outline-none" />
-                        ) : (
-                          <span className="font-semibold">{Number(p.price_kwd).toFixed(3)}</span>
-                        )}
+                    <tr className={`border-t border-gray-100 dark:border-gray-800 ${savingId === p.id ? 'opacity-60' : ''}`}>
+                      <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{p.iphone_models?.model_name}</td>
+                      <td className="px-4 py-2.5 text-gray-500">{p.storage_option}</td>
+                      <td className="px-4 py-2.5">
+                        <NumCell
+                          key={`price-${p.id}-${p.price_kwd}`}
+                          value={Number(p.price_kwd)}
+                          required
+                          onSave={v => v != null && v > 0 && saveField(p.id, { price_kwd: v })}
+                        />
                       </td>
-                      <td className="px-4 py-3">
-                        {editing === p.id ? (
-                          <input type="number" value={editOriginal} onChange={(e) => setEditOriginal(e.target.value)} placeholder="—" step="0.001" min="0" className="w-24 px-2 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:border-blue-400" />
-                        ) : (
-                          <span className="text-gray-500 text-sm">{p.original_price != null ? Number(p.original_price).toFixed(3) : '—'}</span>
-                        )}
+                      <td className="px-4 py-2.5">
+                        <NumCell
+                          key={`orig-${p.id}-${p.original_price}`}
+                          value={p.original_price != null ? Number(p.original_price) : null}
+                          onSave={v => saveField(p.id, { original_price: v })}
+                        />
                       </td>
-                      <td className="px-4 py-3">
-                        {editing === p.id ? (
-                          <input type="datetime-local" value={editDiscountEnds} onChange={(e) => setEditDiscountEnds(e.target.value)} className="px-2 py-1 rounded border border-gray-300 text-xs focus:outline-none focus:border-blue-400" />
-                        ) : (
-                          <span className="text-gray-500 text-xs">{p.discount_ends_at ? new Date(p.discount_ends_at).toLocaleDateString() : '—'}</span>
-                        )}
+                      <td className="px-4 py-2.5">
+                        <DateCell
+                          key={`date-${p.id}-${p.discount_ends_at}`}
+                          value={p.discount_ends_at}
+                          onSave={v => saveField(p.id, { discount_ends_at: v })}
+                        />
                       </td>
-                      <td className="px-4 py-3">
-                        {editing === p.id ? (
-                          <input type="checkbox" checked={editStock} onChange={(e) => setEditStock(e.target.checked)} className="rounded" />
-                        ) : (
-                          <span className={p.in_stock ? 'text-emerald-600' : 'text-gray-400'}>{p.in_stock ? 'Yes' : 'No'}</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        {editing === p.id ? (
-                          <div className="flex flex-col gap-1">
-                            <div className="flex gap-2">
-                              <button onClick={() => saveEdit(p.id)} disabled={saving} className="text-xs text-emerald-600 font-medium hover:underline disabled:opacity-40">
-                                {saving ? 'Saving…' : 'Save'}
-                              </button>
-                              <button onClick={() => { setEditing(null); setSaveError(null) }} className="text-xs text-gray-400 hover:underline">Cancel</button>
-                            </div>
-                            {saveError && <p className="text-xs text-red-600 max-w-[200px]">{saveError}</p>}
-                          </div>
-                        ) : (
-                          <button onClick={() => startEdit(p)} className="text-xs text-blue-600 hover:underline">Edit</button>
-                        )}
+                      <td className="px-4 py-2.5">
+                        <input
+                          type="checkbox"
+                          checked={p.in_stock}
+                          onChange={e => saveField(p.id, { in_stock: e.target.checked })}
+                          className="w-4 h-4 rounded accent-blue-600 cursor-pointer"
+                        />
                       </td>
                     </tr>
                   </React.Fragment>
                 )
               })}
               {prices.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
               )}
             </tbody>
           </table>
