@@ -30,7 +30,6 @@ export default function Footer() {
         <div className="flex flex-col gap-3 sm:col-span-1">
           <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-widest">{t.footerExplore}</p>
           <nav className="flex flex-col gap-2">
-            <FooterLink href="/">{t.productsCategory}</FooterLink>
             <FooterLink href="/watchlist">{t.watchlist}</FooterLink>
           </nav>
         </div>
