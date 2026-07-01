@@ -23,7 +23,7 @@ function checkRateLimit(userId: string): boolean {
 
 // Allowlists
 const ALLOWED_MODELS = ['iPhone 17', 'iPhone 17 Pro', 'iPhone 17 Pro Max']
-const ALLOWED_STORAGE = ['128 GB', '256 GB', '512 GB', '1 TB']
+const ALLOWED_STORAGE = ['128 GB', '256 GB', '512 GB', '1 TB', '2 TB']
 
 export async function POST(req: NextRequest) {
   try {
