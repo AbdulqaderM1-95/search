@@ -31,8 +31,6 @@ export default function Footer() {
           <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-widest">{t.footerExplore}</p>
           <nav className="flex flex-col gap-2">
             <FooterLink href="/">{t.productsCategory}</FooterLink>
-            <FooterLink href="/">{t.shopsCategory}</FooterLink>
-            <FooterLink href="/">{t.helpMeChoose}</FooterLink>
             <FooterLink href="/watchlist">{t.watchlist}</FooterLink>
           </nav>
         </div>
