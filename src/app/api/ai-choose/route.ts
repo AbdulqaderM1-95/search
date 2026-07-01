@@ -28,6 +28,15 @@ const err = (msg: string, status = 500) =>
 
 export async function POST(req: NextRequest) {
   try {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => req.cookies.getAll(), setAll: () => {} } }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return err('Unauthorised', 401)
+
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
   if (!checkRateLimit(ip)) {
     return err('Too many requests — try again in a minute', 429)
@@ -50,12 +59,6 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Invalid storage need' }), { status: 400 })
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => req.cookies.getAll(), setAll: () => {} } }
-  )
-
   const { data: prices, error: dbError } = await supabase
     .from('prices')
     .select('price_kwd, storage_option, shops(name, is_authorised_reseller), iphone_models(model_name)')
@@ -64,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   if (dbError) {
     console.error('[ai-choose] db error', dbError)
-    return err('Database error: ' + dbError.message, 500)
+    return err('Internal error', 500)
   }
 
   if (!prices || prices.length === 0) {

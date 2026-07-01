@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /watchlist/
+Disallow: /api/
+
+Allow: /
+Allow: /about/
+
+Sitemap: https://ezsearch.vercel.app/sitemap.xml

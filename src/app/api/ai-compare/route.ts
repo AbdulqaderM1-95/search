@@ -20,12 +20,21 @@ function checkRateLimit(key: string): boolean {
 }
 
 const ALLOWED_MODELS = ['iPhone 17', 'iPhone 17 Pro', 'iPhone 17 Pro Max']
+const ALLOWED_STORAGE = ['128 GB', '256 GB', '512 GB', '1 TB', '2 TB']
 
 const err = (msg: string, status = 400) =>
   new Response(JSON.stringify({ error: msg }), { status, headers: { 'Content-Type': 'application/json' } })
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { getAll: () => req.cookies.getAll(), setAll: () => {} } }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return err('Unauthorised', 401)
+
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
     if (!checkRateLimit(ip)) return err('Too many requests — try again in a minute', 429)
 
@@ -36,13 +45,7 @@ export async function POST(req: NextRequest) {
     if (!ALLOWED_MODELS.includes(model1)) return err('Invalid model')
     if (!ALLOWED_MODELS.includes(model2)) return err('Invalid model')
     if (model1 === model2) return err('Pick two different models')
-    if (!storage || typeof storage !== 'string') return err('Invalid storage')
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll: () => req.cookies.getAll(), setAll: () => {} } }
-    )
+    if (!ALLOWED_STORAGE.includes(storage)) return err('Invalid storage')
 
     const { data: prices } = await supabase
       .from('prices')
