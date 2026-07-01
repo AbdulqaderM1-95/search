@@ -14,9 +14,10 @@ type Props = {
   onSearchChange?: (q: string) => void
   onSearchSubmit?: () => void
   onClearSearch?: () => void
+  hideSearch?: boolean
 }
 
-export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onSearchChange = () => {}, onSearchSubmit = () => {}, onClearSearch }: Props) {
+export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onSearchChange = () => {}, onSearchSubmit = () => {}, onClearSearch, hideSearch = false }: Props) {
   const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<string | null>(null)
@@ -43,7 +44,7 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-blue-600 shadow-[0_2px_16px_rgba(37,99,235,0.35)]">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-[0_2px_16px_rgba(15,23,42,0.5)]">
       <div className="px-3 sm:px-6 h-14 sm:h-16 flex items-center gap-2 sm:gap-3">
 
         {/* Hamburger (mobile) */}
@@ -82,7 +83,7 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
         )}
 
         {/* Search bar */}
-        <div className="flex-1 max-w-lg mx-auto">
+        <div className={`max-w-lg mx-auto ${hideSearch ? 'hidden' : 'flex-1'}`}>
           <div className="relative">
             <svg
               className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none ${lang === 'ar' ? 'right-3' : 'left-3'}`}

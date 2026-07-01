@@ -189,6 +189,7 @@ export default function HomePage() {
           setSelectedShopId(null)
           setActiveView('products')
         }}
+        hideSearch={!selectedModel && activeView === 'products'}
       />
 
       <div className="flex flex-1">
@@ -531,8 +532,19 @@ export default function HomePage() {
                         onChange={(e) => { setSearchQuery(e.target.value); if (!e.target.value.trim() && activeView === 'search') setActiveView('products') }}
                         onKeyDown={(e) => e.key === 'Enter' && searchQuery.trim() && setActiveView('search')}
                         placeholder={t.searchPlaceholder}
-                        className="w-full py-4 pl-12 pr-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 text-base outline-none focus:ring-2 focus:ring-white/30 shadow-2xl"
+                        className="w-full py-4 pl-12 pr-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 text-base outline-none focus:ring-2 focus:ring-white/30 shadow-2xl"
                       />
+                      {searchQuery && (
+                        <button
+                          onClick={() => { setSearchQuery(''); setActiveView('products') }}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/20 hover:bg-white/35 flex items-center justify-center transition-colors"
+                          aria-label="Clear search"
+                        >
+                          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
 
                     {/* Model quick-select pills */}
