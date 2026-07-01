@@ -168,7 +168,7 @@ export default function HomePage() {
   const isHome = !selectedModel && activeView === 'products'
 
   return (
-    <div className={`min-h-screen flex flex-col ${isHome ? 'bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900' : 'bg-gray-50 dark:bg-gray-950'}`}>
+    <div className={`min-h-screen flex flex-col ${isHome ? 'bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900' : 'bg-gray-50 dark:bg-gray-950'}`}>
 
       <Header
         onMenuClick={() => setMobileMenuOpen(true)}
