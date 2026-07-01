@@ -128,7 +128,6 @@ export default function AdminContentPage() {
                 <th className="px-4 py-3 text-left">Orig. Price</th>
                 <th className="px-4 py-3 text-left">Discount ends</th>
                 <th className="px-4 py-3 text-left">In stock</th>
-                <th className="px-4 py-3 text-left">Updated</th>
                 <th className="px-4 py-3 text-left"></th>
               </tr>
             </thead>
@@ -139,7 +138,7 @@ export default function AdminContentPage() {
                   <React.Fragment key={p.id}>
                     {isNewShop && (
                       <tr>
-                        <td colSpan={8} className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest border-t-2 border-b border-gray-200 dark:border-gray-700">
+                        <td colSpan={7} className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest border-t-2 border-b border-gray-200 dark:border-gray-700">
                           {p.shops?.name}
                         </td>
                       </tr>
@@ -175,7 +174,6 @@ export default function AdminContentPage() {
                           <span className={p.in_stock ? 'text-emerald-600' : 'text-gray-400'}>{p.in_stock ? 'Yes' : 'No'}</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-400">{new Date(p.updated_at).toLocaleString()}</td>
                       <td className="px-4 py-3">
                         {editing === p.id ? (
                           <div className="flex flex-col gap-1">
@@ -196,7 +194,7 @@ export default function AdminContentPage() {
                 )
               })}
               {prices.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
               )}
             </tbody>
           </table>
