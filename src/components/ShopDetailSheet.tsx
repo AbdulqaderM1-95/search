@@ -1,9 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import type { PriceHistory, Shop } from '@/lib/types'
-import PriceHistoryChart from './PriceHistoryChart'
+import type { Shop } from '@/lib/types'
 
 const MODELS = ['iPhone 17', 'iPhone 17 Pro', 'iPhone 17 Pro Max']
 
@@ -16,37 +14,13 @@ type Props = {
   onClose: () => void
 }
 
-export default function ShopDetailSheet({ shop, modelId, modelName, storage, currentPrice, onClose }: Props) {
-  const supabase = createClient()
-  const [history, setHistory] = useState<PriceHistory[]>([])
-  const [loading, setLoading] = useState(true)
-
-  // Compare state
+export default function ShopDetailSheet({ shop, modelName, storage, currentPrice, onClose }: Props) {
   const [compareModel, setCompareModel] = useState('')
   const [comparing, setComparing] = useState(false)
   const [compareResult, setCompareResult] = useState('')
   const [compareError, setCompareError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
-  useEffect(() => {
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - 30)
-
-    supabase
-      .from('price_history')
-      .select('*')
-      .eq('shop_id', shop.id)
-      .eq('model_id', modelId)
-      .eq('storage_option', storage)
-      .gte('recorded_at', cutoff.toISOString())
-      .order('recorded_at', { ascending: true })
-      .then(({ data }) => {
-        setHistory((data as PriceHistory[]) ?? [])
-        setLoading(false)
-      })
-  }, [shop.id, modelId, storage]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Cleanup stream on unmount
   useEffect(() => () => { abortRef.current?.abort() }, [])
 
   const otherModels = MODELS.filter(m => m !== modelName)
@@ -123,7 +97,7 @@ export default function ShopDetailSheet({ shop, modelId, modelName, storage, cur
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-semibold text-gray-900 dark:text-white">{shop.name}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{storage} · 30-day price history</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{storage}</p>
             </div>
             <button
               onClick={onClose}
@@ -136,22 +110,15 @@ export default function ShopDetailSheet({ shop, modelId, modelName, storage, cur
           </div>
 
           {/* Current price */}
-          <div className="mb-4 flex items-baseline gap-2">
+          <div className="mb-5 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900 dark:text-white">
               {Number(currentPrice).toFixed(3)}
             </span>
-            <span className="text-sm text-gray-500">KWD current</span>
+            <span className="text-sm text-gray-500">KWD</span>
           </div>
 
-          {/* Chart */}
-          {loading ? (
-            <div className="h-48 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
-          ) : (
-            <PriceHistoryChart history={history} />
-          )}
-
           {/* Divider */}
-          <div className="border-t border-gray-100 dark:border-gray-800 my-5" />
+          <div className="border-t border-gray-100 dark:border-gray-800 mb-5" />
 
           {/* AI Compare section */}
           <div>
@@ -164,7 +131,6 @@ export default function ShopDetailSheet({ shop, modelId, modelName, storage, cur
               </p>
             </div>
 
-            {/* Model picker buttons */}
             {!compareModel && (
               <div className="flex flex-col gap-2">
                 {otherModels.map(m => (
@@ -179,7 +145,6 @@ export default function ShopDetailSheet({ shop, modelId, modelName, storage, cur
               </div>
             )}
 
-            {/* Loading */}
             {comparing && (
               <div className="flex items-center gap-3 py-3 text-sm text-gray-500">
                 <div className="w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin shrink-0" />
@@ -187,14 +152,12 @@ export default function ShopDetailSheet({ shop, modelId, modelName, storage, cur
               </div>
             )}
 
-            {/* Error */}
             {compareError && (
               <div className="text-sm text-red-600 dark:text-red-400 py-3 px-4 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900">
                 {compareError}
               </div>
             )}
 
-            {/* Result */}
             {!comparing && compareResult && (
               <div className="rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 p-4">
                 <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2 uppercase tracking-wide">
