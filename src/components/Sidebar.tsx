@@ -151,13 +151,13 @@ export default function Sidebar({
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm md:hidden"
           onClick={onMobileClose}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-full z-40 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col transition-[translate] duration-300 w-64
+        className={`fixed top-0 left-0 h-full z-[60] bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col transition-[translate] duration-300 w-64
           md:translate-x-0 md:static md:top-16 md:sticky md:h-[calc(100vh-4rem)] md:self-start
           ${mobileOpen ? 'translate-x-0' : 'translate-x-[-100%]'}`}
       >
