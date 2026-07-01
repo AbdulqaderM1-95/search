@@ -193,6 +193,7 @@ export default function HomePage() {
         }}
         hideSearch={!selectedModel && activeView === 'products'}
         transparent={!selectedModel && activeView === 'products'}
+        overlay={!selectedModel && activeView === 'products'}
       />
 
       <div className="flex flex-1">
@@ -515,7 +516,7 @@ export default function HomePage() {
                 <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none" />
 
                 {/* Hero content */}
-                <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 py-20 text-center min-h-[55vh]">
+                <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 pt-24 pb-20 text-center min-h-[55vh]">
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg leading-tight">
                     {t.heroTitle}
                   </h1>

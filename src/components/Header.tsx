@@ -16,9 +16,10 @@ type Props = {
   onClearSearch?: () => void
   hideSearch?: boolean
   transparent?: boolean
+  overlay?: boolean
 }
 
-export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onSearchChange = () => {}, onSearchSubmit = () => {}, onClearSearch, hideSearch = false, transparent = false }: Props) {
+export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onSearchChange = () => {}, onSearchSubmit = () => {}, onClearSearch, hideSearch = false, transparent = false, overlay = false }: Props) {
   const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<string | null>(null)
@@ -45,7 +46,7 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
   }
 
   return (
-    <header className={`sticky top-0 z-50 ${transparent ? 'bg-transparent shadow-none' : 'bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-[0_2px_16px_rgba(15,23,42,0.5)]'}`}>
+    <header className={`${overlay ? 'absolute top-0 left-0 right-0' : 'sticky top-0'} z-50 ${transparent ? 'bg-transparent shadow-none' : 'bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-[0_2px_16px_rgba(15,23,42,0.5)]'}`}>
       <div className="px-3 sm:px-6 h-14 sm:h-16 flex items-center gap-2 sm:gap-3">
 
         {/* Hamburger (mobile) */}
