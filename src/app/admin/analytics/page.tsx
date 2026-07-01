@@ -2,15 +2,32 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-} from 'recharts'
 
 type Analytics = {
   totalUsers: number
   newUsers7d: number
   activeAlerts: number
   signupsByDay: { date: string; count: number }[]
+}
+
+function SparkBar({ data }: { data: { date: string; count: number }[] }) {
+  const max = Math.max(...data.map(d => d.count), 1)
+  return (
+    <div className="flex items-end gap-1.5 h-40">
+      {data.map(({ date, count }) => (
+        <div key={date} className="flex-1 flex flex-col items-center gap-1 h-full justify-end group">
+          <span className="text-xs text-blue-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+            {count}
+          </span>
+          <div
+            className="w-full rounded-t-md bg-blue-500 transition-all duration-300"
+            style={{ height: `${(count / max) * 100}%`, minHeight: count > 0 ? '4px' : '2px' }}
+          />
+          <span className="text-[10px] text-gray-400 whitespace-nowrap">{date}</span>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export default function AdminAnalyticsPage() {
@@ -85,18 +102,7 @@ export default function AdminAnalyticsPage() {
         {loading ? (
           <div className="h-48 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
         ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={data?.signupsByDay ?? []} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number) => [v, 'Signups']}
-              />
-              <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: '#3b82f6' }} />
-            </LineChart>
-          </ResponsiveContainer>
+          <SparkBar data={data?.signupsByDay ?? []} />
         )}
       </div>
     </div>
