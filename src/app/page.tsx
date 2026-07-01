@@ -223,8 +223,8 @@ export default function HomePage() {
           }}
         />
 
-        <div className="flex-1 min-w-0">
-          <main className="max-w-2xl mx-auto px-4 pb-6 pt-4 sm:pt-6">
+        <div className="flex-1 min-w-0 flex flex-col">
+          <main className={`${(!selectedModel && activeView === 'products') ? 'flex-1 flex flex-col' : 'max-w-2xl mx-auto px-4 pb-6 pt-4 sm:pt-6 w-full'}`}>
 
             {activeView === 'search' ? (
               /* ── Search results ── */
@@ -443,99 +443,112 @@ export default function HomePage() {
                 </div>
               </>
             ) : (
-              /* ── Landing page ── */
-              <div className="py-2 sm:py-4 space-y-8 sm:space-y-10">
+              /* ── Landing page — full-bleed hero ── */
+              <div className="relative flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
 
-                {/* Hero */}
-                <div className="text-center py-4 sm:py-6">
-                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                {/* SVG phone illustrations scattered in background */}
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  {/* Phone 1 — far left, tilted */}
+                  <g transform="translate(40,80) rotate(-18,27,54)">
+                    <rect width="54" height="108" rx="10" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"/>
+                    <rect x="4" y="12" width="46" height="84" rx="6" fill="rgba(255,255,255,0.04)"/>
+                    <rect x="17" y="5" width="20" height="4" rx="2" fill="rgba(255,255,255,0.12)"/>
+                    <rect x="17" y="98" width="20" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+                    <circle cx="43" cy="7" r="2" fill="rgba(255,255,255,0.12)"/>
+                  </g>
+                  {/* Phone 2 — left-center, larger, slight tilt */}
+                  <g transform="translate(165,20) rotate(8,32,66)">
+                    <rect width="64" height="132" rx="12" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5"/>
+                    <rect x="5" y="15" width="54" height="102" rx="8" fill="rgba(255,255,255,0.04)"/>
+                    <rect x="20" y="6" width="24" height="5" rx="2.5" fill="rgba(255,255,255,0.14)"/>
+                    <rect x="20" y="121" width="24" height="3.5" rx="1.75" fill="rgba(255,255,255,0.14)"/>
+                    <circle cx="51" cy="8.5" r="2.5" fill="rgba(255,255,255,0.14)"/>
+                  </g>
+                  {/* Phone 3 — center, dynamic island style, bright */}
+                  <g transform="translate(345,10) rotate(-5,27,55)">
+                    <rect width="54" height="110" rx="10" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5"/>
+                    <rect x="4" y="13" width="46" height="84" rx="6" fill="rgba(255,255,255,0.05)"/>
+                    <rect x="18" y="5" width="18" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                    <rect x="16" y="100" width="22" height="3" rx="1.5" fill="rgba(255,255,255,0.18)"/>
+                  </g>
+                  {/* Phone 4 — right-center, Pro Max sized */}
+                  <g transform="translate(522,5) rotate(14,35,72)">
+                    <rect width="70" height="144" rx="13" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.16)" strokeWidth="1.5"/>
+                    <rect x="5" y="16" width="60" height="112" rx="9" fill="rgba(255,255,255,0.04)"/>
+                    <rect x="23" y="6" width="24" height="5" rx="2.5" fill="rgba(255,255,255,0.13)"/>
+                    <rect x="23" y="133" width="24" height="4" rx="2" fill="rgba(255,255,255,0.13)"/>
+                  </g>
+                  {/* Phone 5 — far right, tilted */}
+                  <g transform="translate(712,55) rotate(-22,27,54)">
+                    <rect width="54" height="108" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5"/>
+                    <rect x="4" y="12" width="46" height="84" rx="6" fill="rgba(255,255,255,0.03)"/>
+                    <rect x="17" y="5" width="20" height="4" rx="2" fill="rgba(255,255,255,0.10)"/>
+                    <rect x="17" y="98" width="20" height="3" rx="1.5" fill="rgba(255,255,255,0.10)"/>
+                  </g>
+                  {/* Phone 6 — bottom-left */}
+                  <g transform="translate(85,310) rotate(12,27,54)">
+                    <rect width="54" height="108" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.10)" strokeWidth="1.5"/>
+                    <rect x="4" y="12" width="46" height="84" rx="6" fill="rgba(255,255,255,0.03)"/>
+                    <rect x="17" y="5" width="20" height="4" rx="2" fill="rgba(255,255,255,0.09)"/>
+                    <rect x="17" y="98" width="20" height="3" rx="1.5" fill="rgba(255,255,255,0.09)"/>
+                  </g>
+                  {/* Phone 7 — bottom-right */}
+                  <g transform="translate(638,295) rotate(-10,32,66)">
+                    <rect width="64" height="132" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.11)" strokeWidth="1.5"/>
+                    <rect x="5" y="15" width="54" height="102" rx="8" fill="rgba(255,255,255,0.03)"/>
+                    <rect x="20" y="6" width="24" height="5" rx="2.5" fill="rgba(255,255,255,0.09)"/>
+                    <rect x="20" y="121" width="24" height="3.5" rx="1.75" fill="rgba(255,255,255,0.09)"/>
+                  </g>
+                  {/* Phone 8 — center-bottom, partially visible */}
+                  <g transform="translate(310,360) rotate(4,27,54)">
+                    <rect width="54" height="108" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.10)" strokeWidth="1.5"/>
+                    <rect x="4" y="12" width="46" height="84" rx="6" fill="rgba(255,255,255,0.03)"/>
+                    <rect x="17" y="5" width="20" height="4" rx="2" fill="rgba(255,255,255,0.09)"/>
+                  </g>
+                </svg>
+
+                {/* Bottom gradient fade into footer */}
+                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none" />
+
+                {/* Hero content */}
+                <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 py-20 text-center min-h-[55vh]">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg leading-tight">
                     {t.heroTitle}
                   </h1>
-                  <p className="mt-2 text-gray-500 dark:text-gray-400 text-sm max-w-xs sm:max-w-sm mx-auto">
+                  <p className="mt-3 text-blue-200/90 text-sm sm:text-base max-w-xs sm:max-w-sm leading-relaxed">
                     {t.heroSubtitle}
                   </p>
-                </div>
 
-                {/* Guided start */}
-                <div>
-                  <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">{t.getStarted}</h2>
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                    <button
-                      onClick={() => setActiveView('products')}
-                      className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-300 hover:shadow-[0_4px_20px_rgba(37,99,235,0.15)] transition-all group active:scale-[0.98]"
-                    >
-                      <span className="text-2xl sm:text-3xl">📱</span>
-                      <div className="text-center">
-                        <p className="font-bold text-gray-900 dark:text-white text-sm">{t.productsCategory}</p>
-                        <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">{t.browseModels}</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveView('shops')}
-                      className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-300 hover:shadow-[0_4px_20px_rgba(37,99,235,0.15)] transition-all group active:scale-[0.98]"
-                    >
-                      <span className="text-2xl sm:text-3xl">🏪</span>
-                      <div className="text-center">
-                        <p className="font-bold text-gray-900 dark:text-white text-sm">{t.shopsCategory}</p>
-                        <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">{t.browseShops}</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
+                  {/* Search bar */}
+                  <div className="mt-8 w-full max-w-md">
+                    <div className="relative">
+                      <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                      </svg>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => { setSearchQuery(e.target.value); if (!e.target.value.trim() && activeView === 'search') setActiveView('products') }}
+                        onKeyDown={(e) => e.key === 'Enter' && searchQuery.trim() && setActiveView('search')}
+                        placeholder={t.searchPlaceholder}
+                        className="w-full py-4 pl-12 pr-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 text-base outline-none focus:ring-2 focus:ring-white/30 shadow-2xl"
+                      />
+                    </div>
 
-                {/* Quick picks — latest models */}
-                {visibleModels.length > 0 && (
-                  <div>
-                    <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">{t.quickPicks}</h2>
-                    <div className="space-y-2">
-                      {visibleModels.slice(0, 4).map(m => (
+                    {/* Model quick-select pills */}
+                    <div className="mt-4 flex flex-wrap gap-2 justify-center">
+                      {visibleModels.map(m => (
                         <button
                           key={m.id}
                           onClick={() => { setSelectedModel(m); setActiveView('products'); if (!m.storage_options.includes(selectedStorage)) setSelectedStorage(m.storage_options[0] ?? '256 GB') }}
-                          className="w-full flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-300 hover:shadow-[0_4px_16px_rgba(37,99,235,0.12)] transition-all text-left"
+                          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/25 active:bg-white/30 text-white/90 text-xs font-medium border border-white/20 transition-colors backdrop-blur-sm"
                         >
-                          <span className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center text-lg flex-shrink-0">📱</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{m.model_name}</p>
-                            <p className="text-xs text-gray-400 mt-0.5">{m.storage_options.join(' · ')}</p>
-                          </div>
-                          <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
+                          {m.model_name}
                         </button>
                       ))}
                     </div>
                   </div>
-                )}
-
-                {/* Today's best deals */}
-                {bestDeals.length > 0 && (
-                  <div>
-                    <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">{t.bestDeals}</h2>
-                    <div className="space-y-2">
-                      {bestDeals.filter(p => visibleModels.some(m => m.id === p.model_id)).map(p => {
-                        const model = visibleModels.find(m => m.id === p.model_id)
-                        return (
-                          <button
-                            key={p.id}
-                            onClick={() => { if (model) { setSelectedModel(model); setSelectedStorage(p.storage_option); setActiveView('products') } }}
-                            className="w-full flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-300 hover:shadow-[0_4px_16px_rgba(37,99,235,0.12)] transition-all text-left"
-                          >
-                            <span className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-lg flex-shrink-0">🏷️</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{model?.model_name ?? '—'} · {p.storage_option}</p>
-                              <p className="text-xs text-gray-400 mt-0.5">{p.shops?.name}</p>
-                            </div>
-                            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 tabular-nums flex-shrink-0">
-                              {p.price_kwd.toFixed(3)} KD
-                            </span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
+                </div>
               </div>
             )}
 
