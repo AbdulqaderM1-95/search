@@ -135,12 +135,12 @@ export default function Sidebar({
 
   const handleSelectShop = (id: string | null) => {
     onSelectShop(id)
-    if (window.innerWidth < 768) onMobileClose()
+    onMobileClose()
   }
 
   const handleSelectModel = (m: IphoneModel) => {
     onSelectModel(m)
-    if (window.innerWidth < 768) onMobileClose()
+    onMobileClose()
   }
 
   const isExpanded = (key: string) => expanded.has(key)
