@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Price, Shop, IphoneModel } from '@/lib/types'
 
@@ -116,7 +116,6 @@ export default function AdminContentPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 text-xs uppercase tracking-wide">
               <tr>
-                <th className="px-4 py-3 text-left text-gray-300 dark:text-gray-600">—</th>
                 <th className="px-4 py-3 text-left">Model</th>
                 <th className="px-4 py-3 text-left">Storage</th>
                 <th className="px-4 py-3 text-left">Price (KWD)</th>
@@ -127,110 +126,71 @@ export default function AdminContentPage() {
                 <th className="px-4 py-3 text-left"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+            <tbody className="bg-white dark:bg-gray-900">
               {prices.map((p, i) => {
                 const isNewShop = i === 0 || prices[i - 1].shops?.name !== p.shops?.name
                 return (
-                <>
-                  {isNewShop && (
-                    <tr key={`shop-header-${p.shops?.name}`}>
-                      <td colSpan={9} className="px-4 py-2 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest border-t-2 border-gray-200 dark:border-gray-700">
-                        {p.shops?.name}
+                  <React.Fragment key={p.id}>
+                    {isNewShop && (
+                      <tr>
+                        <td colSpan={8} className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest border-t-2 border-b border-gray-200 dark:border-gray-700">
+                          {p.shops?.name}
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="border-t border-gray-100 dark:border-gray-800">
+                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{p.iphone_models?.model_name}</td>
+                      <td className="px-4 py-3 text-gray-500">{p.storage_option}</td>
+                      <td className="px-4 py-3">
+                        {editing === p.id ? (
+                          <input type="number" value={editVal} onChange={(e) => setEditVal(e.target.value)} step="0.001" min="0" className="w-24 px-2 py-1 rounded border border-blue-400 text-sm focus:outline-none" />
+                        ) : (
+                          <span className="font-semibold">{Number(p.price_kwd).toFixed(3)}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {editing === p.id ? (
+                          <input type="number" value={editOriginal} onChange={(e) => setEditOriginal(e.target.value)} placeholder="—" step="0.001" min="0" className="w-24 px-2 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:border-blue-400" />
+                        ) : (
+                          <span className="text-gray-500 text-sm">{p.original_price != null ? Number(p.original_price).toFixed(3) : '—'}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {editing === p.id ? (
+                          <input type="datetime-local" value={editDiscountEnds} onChange={(e) => setEditDiscountEnds(e.target.value)} className="px-2 py-1 rounded border border-gray-300 text-xs focus:outline-none focus:border-blue-400" />
+                        ) : (
+                          <span className="text-gray-500 text-xs">{p.discount_ends_at ? new Date(p.discount_ends_at).toLocaleDateString() : '—'}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {editing === p.id ? (
+                          <input type="checkbox" checked={editStock} onChange={(e) => setEditStock(e.target.checked)} className="rounded" />
+                        ) : (
+                          <span className={p.in_stock ? 'text-emerald-600' : 'text-gray-400'}>{p.in_stock ? 'Yes' : 'No'}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-400">{new Date(p.updated_at).toLocaleString()}</td>
+                      <td className="px-4 py-3">
+                        {editing === p.id ? (
+                          <div className="flex flex-col gap-1">
+                            <div className="flex gap-2">
+                              <button onClick={() => saveEdit(p.id)} disabled={saving} className="text-xs text-emerald-600 font-medium hover:underline disabled:opacity-40">
+                                {saving ? 'Saving…' : 'Save'}
+                              </button>
+                              <button onClick={() => { setEditing(null); setSaveError(null) }} className="text-xs text-gray-400 hover:underline">Cancel</button>
+                            </div>
+                            {saveError && <p className="text-xs text-red-600 max-w-[200px]">{saveError}</p>}
+                          </div>
+                        ) : (
+                          <button onClick={() => startEdit(p)} className="text-xs text-blue-600 hover:underline">Edit</button>
+                        )}
                       </td>
                     </tr>
-                  )}
-                  <tr key={p.id}>
-                  <td className="px-4 py-3 font-medium text-gray-400 dark:text-gray-500 text-xs">—</td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{p.iphone_models?.model_name}</td>
-                  <td className="px-4 py-3 text-gray-500">{p.storage_option}</td>
-                  <td className="px-4 py-3">
-                    {editing === p.id ? (
-                      <input
-                        type="number"
-                        value={editVal}
-                        onChange={(e) => setEditVal(e.target.value)}
-                        step="0.001"
-                        min="0"
-                        className="w-24 px-2 py-1 rounded border border-blue-400 text-sm focus:outline-none"
-                      />
-                    ) : (
-                      <span className="font-semibold">{Number(p.price_kwd).toFixed(3)}</span>
-                    )}
-                  </td>
-                  {/* Original price */}
-                  <td className="px-4 py-3">
-                    {editing === p.id ? (
-                      <input
-                        type="number"
-                        value={editOriginal}
-                        onChange={(e) => setEditOriginal(e.target.value)}
-                        placeholder="—"
-                        step="0.001"
-                        min="0"
-                        className="w-24 px-2 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:border-blue-400"
-                      />
-                    ) : (
-                      <span className="text-gray-500 text-sm">
-                        {p.original_price != null ? Number(p.original_price).toFixed(3) : '—'}
-                      </span>
-                    )}
-                  </td>
-                  {/* Discount ends */}
-                  <td className="px-4 py-3">
-                    {editing === p.id ? (
-                      <input
-                        type="datetime-local"
-                        value={editDiscountEnds}
-                        onChange={(e) => setEditDiscountEnds(e.target.value)}
-                        className="px-2 py-1 rounded border border-gray-300 text-xs focus:outline-none focus:border-blue-400"
-                      />
-                    ) : (
-                      <span className="text-gray-500 text-xs">
-                        {p.discount_ends_at ? new Date(p.discount_ends_at).toLocaleDateString() : '—'}
-                      </span>
-                    )}
-                  </td>
-                  {/* In stock */}
-                  <td className="px-4 py-3">
-                    {editing === p.id ? (
-                      <input
-                        type="checkbox"
-                        checked={editStock}
-                        onChange={(e) => setEditStock(e.target.checked)}
-                        className="rounded"
-                      />
-                    ) : (
-                      <span className={p.in_stock ? 'text-emerald-600' : 'text-gray-400'}>
-                        {p.in_stock ? 'Yes' : 'No'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(p.updated_at).toLocaleString()}</td>
-                  <td className="px-4 py-3">
-                    {editing === p.id ? (
-                      <div className="flex flex-col gap-1">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => saveEdit(p.id)}
-                            disabled={saving}
-                            className="text-xs text-emerald-600 font-medium hover:underline disabled:opacity-40"
-                          >
-                            {saving ? 'Saving…' : 'Save'}
-                          </button>
-                          <button onClick={() => { setEditing(null); setSaveError(null) }} className="text-xs text-gray-400 hover:underline">Cancel</button>
-                        </div>
-                        {saveError && <p className="text-xs text-red-600 max-w-[200px]">{saveError}</p>}
-                      </div>
-                    ) : (
-                      <button onClick={() => startEdit(p)} className="text-xs text-blue-600 hover:underline">Edit</button>
-                    )}
-                  </td>
-                </tr>
-                </>
+                  </React.Fragment>
                 )
               })}
               {prices.length === 0 && (
-                <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">No price entries yet. Add your first one.</td></tr>
               )}
             </tbody>
           </table>
