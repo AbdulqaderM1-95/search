@@ -24,7 +24,7 @@ export default function RegisterPage() {
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) {
-      setError(error.message)
+      setError('Could not create account. Try a different email or contact support.')
       setLoading(false)
     } else {
       setDone(true)

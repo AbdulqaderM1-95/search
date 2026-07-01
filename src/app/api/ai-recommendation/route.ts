@@ -26,6 +26,7 @@ const ALLOWED_MODELS = ['iPhone 17', 'iPhone 17 Pro', 'iPhone 17 Pro Max']
 const ALLOWED_STORAGE = ['128 GB', '256 GB', '512 GB', '1 TB']
 
 export async function POST(req: NextRequest) {
+  try {
   // ── Auth check ───────────────────────────────────────────────────────────
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -103,4 +104,8 @@ Keep each section to one or two lines. Be factual and specific.`
       'Connection': 'keep-alive',
     },
   })
+  } catch (e) {
+    console.error('[ai-recommendation] unhandled error', e)
+    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
+  }
 }
