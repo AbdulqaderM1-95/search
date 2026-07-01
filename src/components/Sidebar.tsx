@@ -151,14 +151,13 @@ export default function Sidebar({
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm"
           onClick={onMobileClose}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-full z-[60] bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col transition-[translate] duration-300 w-64
-          md:translate-x-0 md:static md:top-16 md:sticky md:h-[calc(100vh-4rem)] md:self-start
+        className={`fixed top-0 left-0 h-full z-[60] bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col transition-[translate] duration-300 w-72
           ${mobileOpen ? 'translate-x-0' : 'translate-x-[-100%]'}`}
       >
         {/* ── All Categories header ── */}
@@ -174,7 +173,7 @@ export default function Sidebar({
           </button>
           <button
             onClick={onMobileClose}
-            className="md:hidden ml-2 p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="ml-2 p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
