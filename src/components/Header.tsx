@@ -73,7 +73,7 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
         {onHomeClick && (
           <button
             onClick={onHomeClick}
-            className="shrink-0 flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-sm font-medium transition-colors"
+            className={`shrink-0 flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-full text-white text-sm font-medium transition-colors ${transparent ? 'hover:bg-white/10' : 'bg-white/15 hover:bg-white/25'}`}
             aria-label="Home"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -122,7 +122,7 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
           {/* Language toggle — hidden on mobile */}
           <button
             onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-            className="text-white/90 hover:text-white text-sm font-semibold px-2.5 py-1 rounded-lg hover:bg-white/10 transition-colors whitespace-nowrap border border-white/20"
+            className={`text-white/90 hover:text-white text-sm font-semibold px-2.5 py-1 rounded-lg hover:bg-white/10 transition-colors whitespace-nowrap ${transparent ? '' : 'border border-white/20'}`}
           >
             {lang === 'en' ? 'العربية' : 'English'}
           </button>
