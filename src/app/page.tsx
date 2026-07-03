@@ -276,7 +276,7 @@ export default function HomePage() {
                                 </span>
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className="font-bold text-gray-900 dark:text-white text-base">{m.model_name}</p>
+                                <p className="font-bold text-gray-900 dark:text-white text-base">{cleanModelName(m)}</p>
                                 <div className="mt-2 flex flex-wrap gap-1.5">
                                   {m.storage_options.map(s => (
                                     <span key={s} className="text-xs px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium">
@@ -452,10 +452,10 @@ export default function HomePage() {
                   ) : (
                     <>
                       {inStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} model={selectedModel} />
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={cleanModelName(selectedModel)} storage={selectedStorage} brandModels={brandModels} model={selectedModel} />
                       ))}
                       {outOfStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} model={selectedModel} dimmed />
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={cleanModelName(selectedModel)} storage={selectedStorage} brandModels={brandModels} model={selectedModel} dimmed />
                       ))}
                     </>
                   )}
