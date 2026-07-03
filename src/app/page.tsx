@@ -11,6 +11,7 @@ import ChooseAssistant from '@/components/ChooseAssistant'
 import Sidebar from '@/components/Sidebar'
 import Footer from '@/components/Footer'
 import { useLang } from '@/lib/lang-context'
+import { cleanModelName } from '@/lib/utils'
 
 type PriceWithShop = Price & { shops: Shop }
 
@@ -387,7 +388,7 @@ export default function HomePage() {
               <>
                 <div className="mb-5">
                   <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    {selectedModel.model_name}
+                    {cleanModelName(selectedModel)}
                   </h1>
                   {(selectedModel.network || selectedModel.screen_size || selectedModel.ram) && (
                     <div className="flex flex-wrap gap-1.5 mt-2">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import type { Shop, Product } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
+import { cleanModelName } from '@/lib/utils'
 
 function ShopAvatar({ shop, selected }: { shop: Shop; selected: boolean }) {
   const [imgError, setImgError] = useState(false)
@@ -45,22 +46,6 @@ function ChevronIcon({ open }: { open: boolean }) {
   )
 }
 
-function cleanName(m: Product): string {
-  let name = m.model_name
-  // Remove everything from " Phone" / " Smart Phone" onwards (e.g. "Honor X6B Phone 6.56-inch 4GB RAM 128GB Black" → "Honor X6B")
-  name = name.replace(/\s+(?:smart\s+)?(?:phone|smartphone)\b.*/i, '').trim()
-  // Remove network tokens: 5G, 4G LTE, 4G, LTE
-  name = name.replace(/\s+(?:5G|4G\s*LTE|4G|LTE)\b/gi, '').trim()
-  // Remove screen sizes: 6.1, 6.7, 7.95, 6.56-inch etc.
-  name = name.replace(/\s+\d+\.\d+(?:-inch)?\b/gi, '').trim()
-  // Remove storage/RAM amounts: 256GB, 512GB, 128GB, 64GB
-  name = name.replace(/\s+\d{2,4}GB\b/g, '').trim()
-  // Remove Apple chip names: A19 Chip, A18 Chip
-  name = name.replace(/\s+A\d+\s+Chip\b/gi, '').trim()
-  // Remove trailing colour names
-  name = name.replace(/\s+(?:Black|White|Pink|Blue|Silver|Gold|Green|Purple|Yellow|Red|Titanium|Desert|Natural|Ultramarine|Teal|Coral|Midnight|Starlight|Alpine)\s*$/i, '').trim()
-  return name
-}
 
 function groupModelsByBrand(models: Product[]): Map<string, Product[]> {
   const groups = new Map<string, Product[]>()
@@ -234,7 +219,7 @@ export default function Sidebar({
                         }`}>
                           {(m.brand || 'OTH').slice(0, 3).toUpperCase()}
                         </span>
-                        <span className="font-medium truncate">{cleanName(m)}</span>
+                        <span className="font-medium truncate">{cleanModelName(m)}</span>
                       </button>
                     )
                   })}
@@ -282,7 +267,7 @@ export default function Sidebar({
                                   }`}>
                                     {badge}
                                   </span>
-                                  <span className="font-medium truncate">{cleanName(m)}</span>
+                                  <span className="font-medium truncate">{cleanModelName(m)}</span>
                                 </button>
                               )
                             })}
