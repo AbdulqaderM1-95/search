@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
-import type { Price, Shop } from '@/lib/types'
+import type { Price, Shop, Product } from '@/lib/types'
 import ShopDetailSheet from './ShopDetailSheet'
 import { useLang } from '@/lib/lang-context'
 
@@ -15,6 +15,7 @@ type Props = {
   storage: string
   dimmed?: boolean
   brandModels?: string[]
+  model?: Product
 }
 
 const SHOP_COLORS: Record<string, string> = {
@@ -48,7 +49,7 @@ function ShopLogo({ shop }: { shop: Shop }) {
   )
 }
 
-export default function ShopCard({ price, shop, modelId, modelName, storage, dimmed, brandModels = [] }: Props) {
+export default function ShopCard({ price, shop, modelId, modelName, storage, dimmed, brandModels = [], model }: Props) {
   const supabase = createClient()
   const { t } = useLang()
   const [detailOpen, setDetailOpen] = useState(false)
@@ -246,6 +247,7 @@ export default function ShopCard({ price, shop, modelId, modelName, storage, dim
           currentPrice={price.price_kwd}
           onClose={() => setDetailOpen(false)}
           brandModels={brandModels}
+          model={model}
         />
       )}
     </>

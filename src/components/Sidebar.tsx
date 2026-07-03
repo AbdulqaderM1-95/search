@@ -45,6 +45,15 @@ function ChevronIcon({ open }: { open: boolean }) {
   )
 }
 
+function cleanName(m: Product): string {
+  let name = m.model_name
+  // Strip network suffix that now lives in its own column (e.g. " 5G", " 4G LTE")
+  if (m.network) {
+    name = name.replace(new RegExp(`\\s+${m.network.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i'), '').trim()
+  }
+  return name
+}
+
 function groupModelsByBrand(models: Product[]): Map<string, Product[]> {
   const groups = new Map<string, Product[]>()
   for (const m of models) {
@@ -217,7 +226,7 @@ export default function Sidebar({
                         }`}>
                           {(m.brand || 'OTH').slice(0, 3).toUpperCase()}
                         </span>
-                        <span className="font-medium truncate">{m.model_name}</span>
+                        <span className="font-medium truncate">{cleanName(m)}</span>
                       </button>
                     )
                   })}
@@ -265,7 +274,7 @@ export default function Sidebar({
                                   }`}>
                                     {badge}
                                   </span>
-                                  <span className="font-medium truncate">{m.model_name}</span>
+                                  <span className="font-medium truncate">{cleanName(m)}</span>
                                 </button>
                               )
                             })}

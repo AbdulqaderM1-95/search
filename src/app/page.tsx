@@ -432,10 +432,10 @@ export default function HomePage() {
                   ) : (
                     <>
                       {inStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} />
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} model={selectedModel} />
                       ))}
                       {outOfStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} dimmed />
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} model={selectedModel} dimmed />
                       ))}
                     </>
                   )}

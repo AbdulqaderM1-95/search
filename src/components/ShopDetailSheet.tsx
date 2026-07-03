@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import type { Shop } from '@/lib/types'
+import type { Shop, Product } from '@/lib/types'
 
 type Props = {
   shop: Shop
@@ -11,9 +11,10 @@ type Props = {
   currentPrice: number
   onClose: () => void
   brandModels?: string[]
+  model?: Product
 }
 
-export default function ShopDetailSheet({ shop, modelName, storage, currentPrice, onClose, brandModels = [] }: Props) {
+export default function ShopDetailSheet({ shop, modelName, storage, currentPrice, onClose, brandModels = [], model }: Props) {
   const [compareModel, setCompareModel] = useState('')
   const [comparing, setComparing] = useState(false)
   const [compareResult, setCompareResult] = useState('')
@@ -93,20 +94,37 @@ export default function ShopDetailSheet({ shop, modelName, storage, currentPrice
       <div className="bg-white dark:bg-gray-900 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-start justify-between mb-1">
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-white">{shop.name}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{storage}</p>
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">{shop.name}</p>
+              <h2 className="font-bold text-gray-900 dark:text-white text-lg leading-snug">{modelName}</h2>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 flex-shrink-0 mt-0.5"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
+
+          {/* Spec pills below model name */}
+          {(() => {
+            const pills: string[] = [storage]
+            if (model?.network) pills.push(model.network)
+            if (model?.screen_size) pills.push(model.screen_size)
+            if (model?.ram) pills.push(model.ram + ' RAM')
+            return (
+              <div className="flex flex-wrap gap-1.5 mt-2 mb-4">
+                {pills.map(p => (
+                  <span key={p} className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium">
+                    {p}
+                  </span>
+                ))}
+              </div>
+            )
+          })()}
 
           {/* Current price */}
           <div className="mb-5 flex items-baseline gap-2">
