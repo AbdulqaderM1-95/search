@@ -10,9 +10,10 @@ type Props = {
 }
 
 export default function AIRecommendation({ model, storage, onDismiss }: Props) {
-  const specs = MODEL_SPECS[model.model_name]
+  const richSpecs = MODEL_SPECS[model.model_name]
+  const hasDbSpecs = model.ram || model.screen_size || model.network
 
-  if (!specs) return null
+  if (!richSpecs && !hasDbSpecs) return null
 
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
@@ -34,34 +35,65 @@ export default function AIRecommendation({ model, storage, onDismiss }: Props) {
       </div>
 
       <div className="space-y-2">
-        {SPEC_LABELS.map(({ key, icon, label }) => (
-          <div key={key} className="flex gap-2 text-sm">
-            <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
-              <span>{icon}</span>
-              <span>{label}</span>
-            </span>
-            <span className="text-gray-800 dark:text-gray-200 leading-snug">{specs[key]}</span>
-          </div>
-        ))}
-        <div className="flex gap-2 text-sm">
-          <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
-            <span>💾</span>
-            <span>Storage</span>
-          </span>
-          <span className="text-gray-800 dark:text-gray-200">{storage}</span>
-        </div>
+        {richSpecs ? (
+          /* Apple models — full rich specs from specs.ts */
+          <>
+            {SPEC_LABELS.map(({ key, icon, label }) => (
+              <div key={key} className="flex gap-2 text-sm">
+                <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
+                  <span>{icon}</span>
+                  <span>{label}</span>
+                </span>
+                <span className="text-gray-800 dark:text-gray-200 leading-snug">{richSpecs[key]}</span>
+              </div>
+            ))}
+            <div className="flex gap-2 text-sm">
+              <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
+                <span>💾</span>
+                <span>Storage</span>
+              </span>
+              <span className="text-gray-800 dark:text-gray-200">{storage}</span>
+            </div>
+          </>
+        ) : (
+          /* Other brands — DB specs (ram, screen_size, network) */
+          <>
+            {model.screen_size && (
+              <div className="flex gap-2 text-sm">
+                <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
+                  <span>📱</span><span>Screen</span>
+                </span>
+                <span className="text-gray-800 dark:text-gray-200">{model.screen_size}</span>
+              </div>
+            )}
+            {model.ram && (
+              <div className="flex gap-2 text-sm">
+                <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
+                  <span>⚡</span><span>RAM</span>
+                </span>
+                <span className="text-gray-800 dark:text-gray-200">{model.ram}</span>
+              </div>
+            )}
+            <div className="flex gap-2 text-sm">
+              <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
+                <span>💾</span><span>Storage</span>
+              </span>
+              <span className="text-gray-800 dark:text-gray-200">{storage}</span>
+            </div>
+            {model.network && (
+              <div className="flex gap-2 text-sm">
+                <span className="w-28 shrink-0 text-gray-500 dark:text-gray-400 flex items-start gap-1.5">
+                  <span>🔗</span><span>Network</span>
+                </span>
+                <span className="text-gray-800 dark:text-gray-200">{model.network}</span>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <p className="mt-3 text-xs text-gray-400">
-        Specs are approximate — always verify at{' '}
-        <a
-          href="https://www.apple.com/kw/shop/buy-iphone"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          apple.com/kw
-        </a>
+        Specs are approximate — always verify with the retailer.
       </p>
     </div>
   )
