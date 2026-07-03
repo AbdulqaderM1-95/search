@@ -141,7 +141,6 @@ export default function HomePage() {
       .select('*, shops(*)')
       .eq('model_id', selectedModel.id)
       .eq('storage_option', selectedStorage)
-      .eq('in_stock', true)
       .order('price_kwd', { ascending: true })
     setPrices((data as PriceWithShop[]) ?? [])
     setLoading(false)
@@ -158,6 +157,9 @@ export default function HomePage() {
   let displayed = [...prices]
   if (filterAuthorised) displayed = displayed.filter(p => p.shops?.is_authorised_reseller)
   if (sortOrder === 'desc') displayed = displayed.sort((a, b) => b.price_kwd - a.price_kwd)
+
+  const inStock = displayed.filter(p => p.in_stock)
+  const outOfStock = displayed.filter(p => !p.in_stock)
 
   const selectedShop = shops.find(s => s.id === selectedShopId) ?? null
 
@@ -428,9 +430,14 @@ export default function HomePage() {
                       </button>
                     </div>
                   ) : (
-                    displayed.map(p => (
-                      <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} />
-                    ))
+                    <>
+                      {inStock.map(p => (
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} />
+                      ))}
+                      {outOfStock.map(p => (
+                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} dimmed />
+                      ))}
+                    </>
                   )}
                 </div>
               </>
@@ -538,15 +545,15 @@ export default function HomePage() {
                       )}
                     </div>
 
-                    {/* Model quick-select pills */}
+                    {/* Brand quick-select pills — one per brand, max 5 */}
                     <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                      {visibleModels.map(m => (
+                      {Array.from(new Map(visibleModels.map(m => [m.brand, m])).values()).slice(0, 5).map(m => (
                         <button
-                          key={m.id}
+                          key={m.brand}
                           onClick={() => { setSelectedModel(m); setActiveView('products'); if (!m.storage_options.includes(selectedStorage)) setSelectedStorage(m.storage_options[0] ?? '256 GB') }}
                           className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/25 active:bg-white/30 text-white/90 text-xs font-medium border border-white/20 transition-colors backdrop-blur-sm"
                         >
-                          {m.model_name}
+                          {m.brand}
                         </button>
                       ))}
                     </div>
