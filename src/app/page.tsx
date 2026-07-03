@@ -389,7 +389,26 @@ export default function HomePage() {
                   <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                     {selectedModel.model_name}
                   </h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t.pageSubtitle}</p>
+                  {(selectedModel.network || selectedModel.screen_size || selectedModel.ram) && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {selectedModel.network && (
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-medium border border-blue-100 dark:border-blue-900">
+                          {selectedModel.network}
+                        </span>
+                      )}
+                      {selectedModel.screen_size && (
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium">
+                          {selectedModel.screen_size}
+                        </span>
+                      )}
+                      {selectedModel.ram && (
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium">
+                          {selectedModel.ram} RAM
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t.pageSubtitle}</p>
                 </div>
 
                 <StorageSelector

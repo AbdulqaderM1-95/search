@@ -47,9 +47,15 @@ function ChevronIcon({ open }: { open: boolean }) {
 
 function cleanName(m: Product): string {
   let name = m.model_name
-  // Strip network suffix that now lives in its own column (e.g. " 5G", " 4G LTE")
+  // Strip network token (e.g. "5G", "4G") from anywhere in the name
   if (m.network) {
-    name = name.replace(new RegExp(`\\s+${m.network.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i'), '').trim()
+    const net = m.network.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    name = name.replace(new RegExp(`\\s+${net}\\b`, 'gi'), '').trim()
+  }
+  // Strip RAM token (e.g. "12GB" or "12GB RAM") from anywhere in the name
+  if (m.ram) {
+    const ram = m.ram.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    name = name.replace(new RegExp(`\\s+${ram}(\\s+RAM)?\\b`, 'gi'), '').trim()
   }
   return name
 }
