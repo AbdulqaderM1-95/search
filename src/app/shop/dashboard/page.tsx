@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { Price, Shop, IphoneModel } from '@/lib/types'
+import type { Price, Shop, Product } from '@/lib/types'
 
-type PriceRow = Price & { shops: Shop; iphone_models: IphoneModel }
+type PriceRow = Price & { shops: Shop; products: Product }
 
 export default function ShopDashboardPage() {
   const supabase = createClient()
@@ -43,9 +43,9 @@ export default function ShopDashboardPage() {
 
     const { data } = await supabase
       .from('prices')
-      .select('*, shops(*), iphone_models(*)')
+      .select('*, shops(*), products(*)')
       .eq('shop_id', sp.shop_id)
-      .order('iphone_models(model_name)', { ascending: true })
+      .order('products(model_name)', { ascending: true })
 
     setPrices((data as PriceRow[]) ?? [])
     setLoading(false)
@@ -158,7 +158,7 @@ export default function ShopDashboardPage() {
               return (
                 <tr key={p.id}>
                   <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
-                    {p.iphone_models?.model_name}
+                    {p.products?.model_name}
                   </td>
                   <td className="px-4 py-3 text-gray-500">{p.storage_option}</td>
 

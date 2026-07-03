@@ -14,6 +14,7 @@ type Props = {
   modelName: string
   storage: string
   dimmed?: boolean
+  brandModels?: string[]
 }
 
 const SHOP_COLORS: Record<string, string> = {
@@ -47,7 +48,7 @@ function ShopLogo({ shop }: { shop: Shop }) {
   )
 }
 
-export default function ShopCard({ price, shop, modelId, modelName, storage, dimmed }: Props) {
+export default function ShopCard({ price, shop, modelId, modelName, storage, dimmed, brandModels = [] }: Props) {
   const supabase = createClient()
   const { t } = useLang()
   const [detailOpen, setDetailOpen] = useState(false)
@@ -244,6 +245,7 @@ export default function ShopCard({ price, shop, modelId, modelName, storage, dim
           storage={storage}
           currentPrice={price.price_kwd}
           onClose={() => setDetailOpen(false)}
+          brandModels={brandModels}
         />
       )}
     </>

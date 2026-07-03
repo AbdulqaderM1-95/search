@@ -1,11 +1,11 @@
 'use client'
 
-import type { IphoneModel } from '@/lib/types'
+import type { Product } from '@/lib/types'
 
 type Props = {
-  models: IphoneModel[]
-  selected: IphoneModel | null
-  onSelect: (m: IphoneModel) => void
+  models: Product[]
+  selected: Product | null
+  onSelect: (m: Product) => void
 }
 
 export default function ModelSelector({ models, selected, onSelect }: Props) {

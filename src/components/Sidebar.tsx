@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import type { Shop, IphoneModel } from '@/lib/types'
+import type { Shop, Product } from '@/lib/types'
 import { useLang } from '@/lib/lang-context'
 
 function ShopAvatar({ shop, selected }: { shop: Shop; selected: boolean }) {
@@ -45,13 +45,12 @@ function ChevronIcon({ open }: { open: boolean }) {
   )
 }
 
-function groupModelsBySeries(models: IphoneModel[]): Map<string, IphoneModel[]> {
-  const groups = new Map<string, IphoneModel[]>()
+function groupModelsByBrand(models: Product[]): Map<string, Product[]> {
+  const groups = new Map<string, Product[]>()
   for (const m of models) {
-    const match = m.model_name.match(/^(iPhone \d+)/)
-    const series = match ? match[1] : m.model_name
-    if (!groups.has(series)) groups.set(series, [])
-    groups.get(series)!.push(m)
+    const brand = m.brand || 'Other'
+    if (!groups.has(brand)) groups.set(brand, [])
+    groups.get(brand)!.push(m)
   }
   return groups
 }
@@ -65,14 +64,12 @@ type Props = {
   onSelectShop: (id: string | null) => void
   sortOrder: SortOrder
   onSortChange: (o: SortOrder) => void
-  filterInStock: boolean
-  onFilterInStock: (v: boolean) => void
   filterAuthorised: boolean
   onFilterAuthorised: (v: boolean) => void
   shops: Shop[]
-  models: IphoneModel[]
-  selectedModel: IphoneModel | null
-  onSelectModel: (m: IphoneModel | null) => void
+  models: Product[]
+  selectedModel: Product | null
+  onSelectModel: (m: Product | null) => void
   searchActive?: boolean
   shopsViewActive?: boolean
   onProductsHeaderClick?: () => void
@@ -86,8 +83,6 @@ export default function Sidebar({
   onSelectShop,
   sortOrder,
   onSortChange,
-  filterInStock,
-  onFilterInStock,
   filterAuthorised,
   onFilterAuthorised,
   shops,
@@ -105,14 +100,13 @@ export default function Sidebar({
   const [allOpen, setAllOpen] = useState(true)
   // Which top-level sections are expanded
   const [expanded, setExpanded] = useState<Set<string>>(new Set(['products']))
-  // Which series sub-groups are expanded inside Products
-  const [seriesExpanded, setSeriesExpanded] = useState<Set<string>>(new Set())
+  // Which brand sub-groups are expanded inside Products
+  const [brandExpanded, setBrandExpanded] = useState<Set<string>>(new Set())
 
-  // Auto-expand the series that contains the selected model
+  // Auto-expand the brand that contains the selected model
   useEffect(() => {
     if (!selectedModel) return
-    const match = selectedModel.model_name.match(/^(iPhone \d+)/)
-    if (match) setSeriesExpanded(prev => new Set([...prev, match[1]]))
+    setBrandExpanded(prev => new Set([...prev, selectedModel.brand || 'Other']))
   }, [selectedModel])
 
   const toggleSection = (key: string) => {
@@ -124,11 +118,11 @@ export default function Sidebar({
     })
   }
 
-  const toggleSeries = (series: string) => {
-    setSeriesExpanded(prev => {
+  const toggleBrand = (brand: string) => {
+    setBrandExpanded(prev => {
       const next = new Set(prev)
-      if (next.has(series)) next.delete(series)
-      else next.add(series)
+      if (next.has(brand)) next.delete(brand)
+      else next.add(brand)
       return next
     })
   }
@@ -138,13 +132,13 @@ export default function Sidebar({
     onMobileClose()
   }
 
-  const handleSelectModel = (m: IphoneModel) => {
+  const handleSelectModel = (m: Product) => {
     onSelectModel(m)
     onMobileClose()
   }
 
   const isExpanded = (key: string) => expanded.has(key)
-  const seriesGroups = groupModelsBySeries(models)
+  const brandGroups = groupModelsByBrand(models)
 
   return (
     <>
@@ -221,74 +215,57 @@ export default function Sidebar({
                         <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
                           isSelected ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
                         }`}>
-                          {m.model_name.replace('iPhone ', '').split(' ')[0]}
+                          {(m.brand || 'OTH').slice(0, 3).toUpperCase()}
                         </span>
                         <span className="font-medium truncate">{m.model_name}</span>
                       </button>
                     )
                   })}
 
-                  {/* ── Grouped by series (normal mode) ── */}
-                  {!searchActive && [...seriesGroups.entries()].map(([series, seriesModels]) => {
-                    const seriesOpen = seriesExpanded.has(series)
-                    const seriesNum = series.replace('iPhone ', '')
-                    const hasSelected = seriesModels.some(m => m.id === selectedModel?.id)
+                  {/* ── Grouped by brand (normal mode) ── */}
+                  {!searchActive && [...brandGroups.entries()].map(([brand, brandModels]) => {
+                    const brandOpen = brandExpanded.has(brand)
+                    const hasSelected = brandModels.some(m => m.id === selectedModel?.id)
+                    const badge = brand.slice(0, 3).toUpperCase()
                     return (
-                      <div key={series}>
-                        {/* Series sub-header */}
+                      <div key={brand}>
                         <button
-                          onClick={() => toggleSeries(series)}
+                          onClick={() => toggleBrand(brand)}
                           className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-sm transition-colors ${
-                            hasSelected
-                              ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            hasSelected ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                           }`}
                         >
                           <span className="flex items-center gap-2.5">
-                            <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                              hasSelected
-                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                            <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${
+                              hasSelected ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                             }`}>
-                              {seriesNum}
+                              {badge}
                             </span>
-                            <span className="font-medium">{series.replace(/\s+\d+$/, '')}</span>
+                            <span className="font-medium">{brand}</span>
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <span className="text-xs text-gray-400 dark:text-gray-500">{seriesModels.length}</span>
-                            <ChevronIcon open={seriesOpen} />
+                            <span className="text-xs text-gray-400 dark:text-gray-500">{brandModels.length}</span>
+                            <ChevronIcon open={brandOpen} />
                           </span>
                         </button>
-
-                        {/* Models inside series */}
-                        {seriesOpen && (
+                        {brandOpen && (
                           <div className="ml-2 pl-3 border-l-2 border-gray-100 dark:border-gray-800 py-0.5 space-y-0.5">
-                            {seriesModels.map((m) => {
+                            {brandModels.map((m) => {
                               const isSelected = selectedModel?.id === m.id
-                              const variant = m.model_name.includes('Pro Max') ? `${seriesNum} Pro Max`
-                                : m.model_name.includes('Pro') ? `${seriesNum} Pro`
-                                : m.model_name.includes('Air') ? `${seriesNum} Air`
-                                : `iPhone ${seriesNum}`
-                              const badge = m.model_name.includes('Pro Max') ? 'Max'
-                                : m.model_name.includes('Pro') ? 'Pro'
-                                : m.model_name.includes('Air') ? 'Air'
-                                : seriesNum
                               return (
                                 <button
                                   key={m.id}
                                   onClick={() => handleSelectModel(m)}
                                   className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm transition-colors ${
-                                    isSelected
-                                      ? 'bg-blue-600 text-white'
-                                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    isSelected ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                   }`}
                                 >
-                                  <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                                  <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${
                                     isSelected ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
                                   }`}>
                                     {badge}
                                   </span>
-                                  <span className="font-medium truncate">{variant}</span>
+                                  <span className="font-medium truncate">{m.model_name}</span>
                                 </button>
                               )
                             })}
@@ -334,7 +311,6 @@ export default function Sidebar({
                         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 px-1">{t.filter}</p>
                         <div className="space-y-0.5">
                           {[
-                            { label: t.inStockFilter, value: filterInStock, onChange: onFilterInStock },
                             { label: t.authorisedFilter, value: filterAuthorised, onChange: onFilterAuthorised },
                           ].map((f) => (
                             <button

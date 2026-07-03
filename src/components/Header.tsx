@@ -27,7 +27,8 @@ export default function Header({ onMenuClick, onHomeClick, searchQuery = '', onS
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
-    supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    return () => subscription.unsubscribe()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

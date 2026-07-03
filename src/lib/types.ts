@@ -1,10 +1,15 @@
-export type IphoneModel = {
+export type Product = {
   id: string
   model_name: string
   storage_options: string[]
   image_url: string | null
   updated_at: string
+  brand: string
+  category: string
 }
+
+// Backward-compat alias
+export type IphoneModel = Product
 
 export type Shop = {
   id: string
@@ -49,7 +54,7 @@ export type SavedAlert = {
   price_at_save: number
   saved_at: string
   shops?: Shop
-  iphone_models?: IphoneModel
+  products?: Product
   current_price?: number
 }
 

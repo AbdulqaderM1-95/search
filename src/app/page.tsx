@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
-import type { IphoneModel, Price, Shop } from '@/lib/types'
+import type { Product, Price, Shop } from '@/lib/types'
 import StorageSelector from '@/components/StorageSelector'
 import ShopCard from '@/components/ShopCard'
 import Header from '@/components/Header'
@@ -90,8 +90,8 @@ export default function HomePage() {
   const supabase = createClient()
   const { t } = useLang()
 
-  const [models, setModels] = useState<IphoneModel[]>([])
-  const [selectedModel, setSelectedModel] = useState<IphoneModel | null>(null)
+  const [models, setModels] = useState<Product[]>([])
+  const [selectedModel, setSelectedModel] = useState<Product | null>(null)
   const [selectedStorage, setSelectedStorage] = useState('256 GB')
   const [prices, setPrices] = useState<PriceWithShop[]>([])
   const [shops, setShops] = useState<Shop[]>([])
@@ -105,13 +105,12 @@ export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedShopId, setSelectedShopId] = useState<string | null>(null)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-  const [filterInStock, setFilterInStock] = useState(false)
   const [filterAuthorised, setFilterAuthorised] = useState(false)
   const [bestDeals, setBestDeals] = useState<PriceWithShop[]>([])
 
   useEffect(() => {
     supabase
-      .from('iphone_models')
+      .from('products')
       .select('*')
       .order('model_name')
       .then(({ data }) => {
@@ -142,6 +141,7 @@ export default function HomePage() {
       .select('*, shops(*)')
       .eq('model_id', selectedModel.id)
       .eq('storage_option', selectedStorage)
+      .eq('in_stock', true)
       .order('price_kwd', { ascending: true })
     setPrices((data as PriceWithShop[]) ?? [])
     setLoading(false)
@@ -149,21 +149,21 @@ export default function HomePage() {
 
   useEffect(() => { loadPrices() }, [loadPrices])
 
-  const visibleModels = models.filter(m => !m.model_name.includes('Air'))
+  const visibleModels = models
 
   const q = searchQuery.trim().toLowerCase()
   const filteredModels = q ? visibleModels.filter(m => m.model_name.toLowerCase().includes(q)) : visibleModels
   const filteredShops = q ? shops.filter(s => s.name.toLowerCase().includes(q)) : shops
 
   let displayed = [...prices]
-  if (filterInStock) displayed = displayed.filter(p => p.in_stock)
   if (filterAuthorised) displayed = displayed.filter(p => p.shops?.is_authorised_reseller)
   if (sortOrder === 'desc') displayed = displayed.sort((a, b) => b.price_kwd - a.price_kwd)
 
-  const inStock = displayed.filter(p => p.in_stock)
-  const outOfStock = displayed.filter(p => !p.in_stock)
-
   const selectedShop = shops.find(s => s.id === selectedShopId) ?? null
+
+  const brandModels = selectedModel
+    ? models.filter(m => m.brand === selectedModel.brand && m.id !== selectedModel.id).map(m => m.model_name).slice(0, 5)
+    : []
 
   const isHome = !selectedModel && activeView === 'products'
 
@@ -207,8 +207,6 @@ export default function HomePage() {
           }}
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
-          filterInStock={filterInStock}
-          onFilterInStock={setFilterInStock}
           filterAuthorised={filterAuthorised}
           onFilterAuthorised={setFilterAuthorised}
           shops={filteredShops}
@@ -398,14 +396,8 @@ export default function HomePage() {
                   onSelect={setSelectedStorage}
                 />
 
-                {(filterInStock || filterAuthorised || sortOrder === 'desc') && (
+                {(filterAuthorised || sortOrder === 'desc') && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {filterInStock && (
-                      <button onClick={() => setFilterInStock(false)}
-                        className="flex items-center gap-1.5 text-xs bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-full font-medium hover:bg-emerald-200 transition-colors">
-                        {t.inStockOnlyChip} <span className="text-emerald-500">×</span>
-                      </button>
-                    )}
                     {filterAuthorised && (
                       <button onClick={() => setFilterAuthorised(false)}
                         className="flex items-center gap-1.5 text-xs bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 px-3 py-1.5 rounded-full font-medium hover:bg-purple-200 transition-colors">
@@ -430,20 +422,15 @@ export default function HomePage() {
                     <div className="text-center py-16">
                       <p className="text-lg font-medium text-gray-500 dark:text-gray-400">{t.noShopsMatch}</p>
                       <p className="text-sm mt-1 text-gray-400">{t.tryAdjusting}</p>
-                      <button onClick={() => { setFilterInStock(false); setFilterAuthorised(false) }}
+                      <button onClick={() => { setFilterAuthorised(false) }}
                         className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">
                         {t.clearAllFilters}
                       </button>
                     </div>
                   ) : (
-                    <>
-                      {inStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} />
-                      ))}
-                      {!filterInStock && outOfStock.map(p => (
-                        <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} dimmed />
-                      ))}
-                    </>
+                    displayed.map(p => (
+                      <ShopCard key={p.id} price={p} shop={p.shops} modelId={selectedModel.id} modelName={selectedModel.model_name} storage={selectedStorage} brandModels={brandModels} />
+                    ))
                   )}
                 </div>
               </>

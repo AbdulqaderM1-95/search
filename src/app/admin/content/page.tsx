@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { Price, Shop, IphoneModel } from '@/lib/types'
+import type { Price, Shop, Product } from '@/lib/types'
 
-type PriceRow = Price & { shops: Shop; iphone_models: IphoneModel }
+type PriceRow = Price & { shops: Shop; products: Product }
 
 // Inline number cell — looks like text, edits on click, saves on blur/Enter
 function NumCell({
@@ -66,13 +66,13 @@ export default function AdminContentPage() {
   const load = async () => {
     const { data } = await supabase
       .from('prices')
-      .select('*, shops(*), iphone_models(*)')
+      .select('*, shops(*), products(*)')
     const sorted = ((data as PriceRow[]) ?? []).sort((a, b) => {
       const shopA = a.shops?.name ?? ''
       const shopB = b.shops?.name ?? ''
       if (shopA !== shopB) return shopA.localeCompare(shopB)
-      const modelA = a.iphone_models?.model_name ?? ''
-      const modelB = b.iphone_models?.model_name ?? ''
+      const modelA = a.products?.model_name ?? ''
+      const modelB = b.products?.model_name ?? ''
       if (modelA !== modelB) return modelA.localeCompare(modelB)
       return (a.storage_option ?? '').localeCompare(b.storage_option ?? '')
     })
@@ -100,7 +100,7 @@ export default function AdminContentPage() {
   }
 
   const addPrice = async () => {
-    const { data: models } = await supabase.from('iphone_models').select('id').limit(1)
+    const { data: models } = await supabase.from('products').select('id').limit(1)
     const { data: shops } = await supabase.from('shops').select('id').limit(1)
     if (!models?.[0] || !shops?.[0]) return
     await supabase.from('prices').insert({
@@ -156,7 +156,7 @@ export default function AdminContentPage() {
                       </tr>
                     )}
                     <tr className={`border-t border-gray-100 dark:border-gray-800 ${savingId === p.id ? 'opacity-60' : ''}`}>
-                      <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{p.iphone_models?.model_name}</td>
+                      <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{p.products?.model_name}</td>
                       <td className="px-4 py-2.5 text-gray-500">{p.storage_option}</td>
                       <td className="px-4 py-2.5">
                         <NumCell

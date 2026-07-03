@@ -9,7 +9,7 @@ import type { SavedAlert } from '@/lib/types'
 
 type AlertWithDetails = Omit<SavedAlert, 'current_price'> & {
   shops: { name: string; reach_url: string | null }
-  iphone_models: { model_name: string }
+  products: { model_name: string }
   current_price: number | null
 }
 
@@ -29,7 +29,7 @@ export default function WatchlistPage() {
   const loadAlerts = async (userId: string) => {
     const { data } = await supabase
       .from('saved_alerts')
-      .select('*, shops(name, reach_url), iphone_models(model_name)')
+      .select('*, shops(name, reach_url), products(model_name)')
       .eq('user_id', userId)
       .order('saved_at', { ascending: false })
 
@@ -96,7 +96,7 @@ export default function WatchlistPage() {
                     <div>
                       <p className="font-semibold text-gray-900 dark:text-white">{alert.shops?.name}</p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {alert.iphone_models?.model_name} · {alert.storage_option}
+                        {alert.products?.model_name} · {alert.storage_option}
                       </p>
                       <div className="mt-2 flex items-center gap-3 text-sm">
                         <span className="text-gray-500">Saved at <strong>{Number(alert.price_at_save).toFixed(3)} KWD</strong></span>

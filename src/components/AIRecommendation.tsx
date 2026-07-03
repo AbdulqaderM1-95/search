@@ -1,10 +1,10 @@
 'use client'
 
-import type { IphoneModel } from '@/lib/types'
+import type { Product } from '@/lib/types'
 import { MODEL_SPECS, SPEC_LABELS } from '@/lib/specs'
 
 type Props = {
-  model: IphoneModel
+  model: Product
   storage: string
   onDismiss: () => void
 }
@@ -48,7 +48,7 @@ export default function AIRecommendation({ model, storage, onDismiss }: Props) {
             <span>💾</span>
             <span>Storage</span>
           </span>
-          <span className="text-gray-800 dark:text-gray-200">{storage} RAM 8 GB</span>
+          <span className="text-gray-800 dark:text-gray-200">{storage}</span>
         </div>
       </div>
 
