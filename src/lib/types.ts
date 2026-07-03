@@ -6,6 +6,9 @@ export type Product = {
   updated_at: string
   brand: string
   category: string
+  ram: string | null
+  screen_size: string | null
+  network: string | null
 }
 
 // Backward-compat alias
