@@ -1,4 +1,5 @@
 import type { Product } from '@/lib/types'
+import { MODEL_SPECS } from '@/lib/specs'
 
 export function cleanModelName(m: Product): string {
   let name = m.model_name
@@ -61,11 +62,22 @@ function parseSpecsFromName(modelName: string, storageOptions: string[]): Parsed
   return { network, ram: null, screen_size }
 }
 
-/** Returns specs for a product — uses DB columns when populated, otherwise parses from model name */
+/** Returns specs for a product — DB columns → MODEL_SPECS (Apple) → parsed from name */
 export function getModelSpecs(m: Product): ParsedSpecs {
-  const hasDbSpecs = m.network || m.ram || m.screen_size
-  if (hasDbSpecs) {
+  // 1. DB columns take priority when populated
+  if (m.network || m.ram || m.screen_size) {
     return { network: m.network, ram: m.ram, screen_size: m.screen_size }
   }
+
+  // 2. Known Apple models — extract screen size and network from rich specs
+  const richSpecs = MODEL_SPECS[m.model_name]
+  if (richSpecs) {
+    const screenMatch = richSpecs.display.match(/^(\d+\.?\d*)"/)
+    const screen_size = screenMatch ? `${screenMatch[1]}"` : null
+    const network = /\b5G\b/.test(richSpecs.connectivity) ? '5G' : null
+    return { network, ram: null, screen_size }
+  }
+
+  // 3. All other models — parse from the model name string
   return parseSpecsFromName(m.model_name, m.storage_options)
 }
