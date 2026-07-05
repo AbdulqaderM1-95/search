@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import type { Shop, Product } from '@/lib/types'
+import { getModelSpecs } from '@/lib/utils'
 
 type Props = {
   shop: Shop
@@ -111,15 +112,20 @@ export default function ShopDetailSheet({ shop, modelName, storage, currentPrice
 
           {/* Spec pills below model name */}
           {(() => {
-            const pills: string[] = [storage]
-            if (model?.network) pills.push(model.network)
-            if (model?.screen_size) pills.push(model.screen_size)
-            if (model?.ram) pills.push(model.ram + ' RAM')
+            const specs = model ? getModelSpecs(model) : null
+            const pills: { label: string; accent?: boolean }[] = [{ label: storage }]
+            if (specs?.network) pills.push({ label: specs.network, accent: true })
+            if (specs?.screen_size) pills.push({ label: specs.screen_size })
+            if (specs?.ram) pills.push({ label: specs.ram + ' RAM' })
             return (
               <div className="flex flex-wrap gap-1.5 mt-2 mb-4">
                 {pills.map(p => (
-                  <span key={p} className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-medium">
-                    {p}
+                  <span key={p.label} className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                    p.accent
+                      ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                  }`}>
+                    {p.label}
                   </span>
                 ))}
               </div>
